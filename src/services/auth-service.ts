@@ -30,6 +30,32 @@ class AuthService {
         }
     }
 
+    async refresh(): Promise<AuthResponse | null> {
+        const session = this.getSession();
+        if (!session || !session.refresh_token) {
+            this.logout();
+            return null;
+        }
+
+        try {
+            const response = await axios.post<AuthResponse>(`${API_URL}/api/v1/auth/refresh`, {
+                refreshToken: session.refresh_token,
+            });
+
+            if (response.data.access_token) {
+                this.setSession(response.data);
+                return response.data;
+            }
+
+            this.logout();
+            return null;
+        } catch (error) {
+            console.error('Refresh token error:', error);
+            this.logout();
+            return null;
+        }
+    }
+
     private setSession(authData: AuthResponse): void {
         if (typeof window !== 'undefined') {
             localStorage.setItem(this.STORAGE_KEY, JSON.stringify(authData));

@@ -45,15 +45,23 @@ apiClient.interceptors.response.use(
         if (error.response?.status === 401 && !originalRequest._retry) {
             originalRequest._retry = true;
 
-            // If we are offline, we can't refresh. The SyncManager will handle the retry 
-            // when we come back online.
+            // If we are offline, we can't refresh.
             if (typeof navigator !== 'undefined' && !navigator.onLine) {
                 return Promise.reject(error);
             }
 
-            // Logic for token refresh could go here
-            // await authService.refreshToken();
-            // return apiClient(originalRequest);
+            try {
+                const session = await authService.refresh();
+                if (session && session.access_token) {
+                    // Update the header and retry the request
+                    originalRequest.headers.Authorization = `Bearer ${session.access_token}`;
+                    return apiClient(originalRequest);
+                }
+            } catch (refreshError) {
+                // If refresh fails, clear session and let the app handle the redirect to login
+                authService.logout();
+                return Promise.reject(refreshError);
+            }
         }
 
         return Promise.reject(error);
