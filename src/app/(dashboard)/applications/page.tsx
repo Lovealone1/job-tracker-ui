@@ -11,8 +11,12 @@ import { CrudFormDialog } from '@/components/shared/crud-form-dialog';
 import { CrudConfirmDialog } from '@/components/shared/crud-confirm-dialog';
 import { applicationCrudConfig } from '@/features/applications/config/application-crud-config';
 import { JobApplication, JobApplicationStatus, Priority } from '@/types/job-application';
+import { AdvancedFiltersBar, ApplicationFilters } from '@/features/applications/components/advanced-filters-bar';
+import { isWithinInterval, parseISO } from 'date-fns';
+import { cn } from '@/lib/utils';
 
 const PAGE_SIZE = 8;
+const FILTER_LIMIT = 100; // Load more items when filters are active for better in-memory filtering
 
 export default function ApplicationsPage() {
     const [page, setPage] = useState(0);
@@ -24,10 +28,25 @@ export default function ApplicationsPage() {
     const [notesItem, setNotesItem] = useState<JobApplication | null>(null);
     const [statusUpdatingId, setStatusUpdatingId] = useState<string | null>(null);
     const [priorityUpdatingId, setPriorityUpdatingId] = useState<string | null>(null);
+    const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
+    const [filters, setFilters] = useState<ApplicationFilters>({
+        source: '',
+        priority: '',
+        status: '',
+        dateFrom: '',
+        dateTo: '',
+    });
+
+    const hasActiveFilters = 
+        filters.source !== '' || 
+        filters.priority !== '' || 
+        filters.status !== '' || 
+        filters.dateFrom !== '' || 
+        filters.dateTo !== '';
 
     const { data, isLoading } = useApplications({
-        page: page + 1,
-        limit: PAGE_SIZE,
+        page: hasActiveFilters ? 1 : page + 1,
+        limit: hasActiveFilters ? FILTER_LIMIT : PAGE_SIZE,
         search: search || undefined,
     });
 
@@ -62,6 +81,50 @@ export default function ApplicationsPage() {
             await updateApplication.mutateAsync({ id: notesItem.id, data: { notes } });
         }
     };
+
+    const handleFilterChange = (name: string, value: any) => {
+        setFilters(prev => ({ ...prev, [name]: value }));
+        // Reset page when filtering
+        setPage(0);
+    };
+
+    const clearFilters = () => {
+        setFilters({
+            source: '',
+            priority: '',
+            status: '',
+            dateFrom: '',
+            dateTo: '',
+        });
+        setPage(0);
+    };
+
+    // Client-side filtering logic
+    const filteredData = (data?.data || []).filter(app => {
+        // Source
+        if (filters.source && !app.source?.toLowerCase().includes(filters.source.toLowerCase())) {
+            return false;
+        }
+        // Priority
+        if (filters.priority && app.priority !== filters.priority) {
+            return false;
+        }
+        // Status
+        if (filters.status && app.status !== filters.status) {
+            return false;
+        }
+        // Date Range
+        if (filters.dateFrom || filters.dateTo) {
+            const appDate = parseISO(app.createdAt);
+            const start = filters.dateFrom ? parseISO(filters.dateFrom) : new Date(0);
+            const end = filters.dateTo ? parseISO(filters.dateTo) : new Date(8640000000000000); // Far future
+            
+            if (!isWithinInterval(appDate, { start, end })) {
+                return false;
+            }
+        }
+        return true;
+    });
 
     return (
         <div className="bg-background">
@@ -102,22 +165,41 @@ export default function ApplicationsPage() {
                             className="w-full pl-10 pr-4 py-3 bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#A600FF] transition-all"
                         />
                     </div>
-                    <button className="flex items-center gap-2 px-4 py-3 bg-zinc-100 dark:bg-zinc-900 text-zinc-600 dark:text-zinc-400 rounded-xl text-sm font-bold border border-zinc-200 dark:border-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-800 transition-colors">
+                    <button 
+                        onClick={() => setShowAdvancedFilters(!showAdvancedFilters)}
+                        className={cn(
+                            "flex items-center gap-2 px-4 py-3 rounded-xl text-sm font-bold border transition-all",
+                            showAdvancedFilters || hasActiveFilters
+                                ? "bg-[#A600FF]/10 border-[#A600FF] text-[#A600FF]" 
+                                : "bg-zinc-100 dark:bg-zinc-900 text-zinc-600 dark:text-zinc-400 border-zinc-200 dark:border-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-800"
+                        )}
+                    >
                         <Filter size={18} />
                         Advanced Filters
+                        {hasActiveFilters && (
+                            <span className="flex h-2 w-2 rounded-full bg-[#A600FF]" />
+                        )}
                     </button>
                 </div>
 
+                {/* Advanced Filters Bar */}
+                <AdvancedFiltersBar
+                    isOpen={showAdvancedFilters}
+                    filters={filters}
+                    onFilterChange={handleFilterChange}
+                    onClear={clearFilters}
+                />
+
                 {/* Table View */}
                 <ApplicationsTableView
-                    data={data?.data || []}
+                    data={filteredData}
                     isLoading={isLoading}
                     pagination={{
                         page,
                         pageSize: PAGE_SIZE,
                         onPageChange: (newPage: number) => setPage(newPage),
-                        hasMore: data?.meta ? page + 1 < data.meta.totalPages : false,
-                        totalElements: data?.meta?.totalItems,
+                        hasMore: hasActiveFilters ? false : (data?.meta ? page + 1 < data.meta.totalPages : false),
+                        totalElements: hasActiveFilters ? filteredData.length : data?.meta?.totalItems,
                     }}
                     onView={(item) => setViewingItem(item)}
                     onEdit={(item) => setEditingItem(item)}
