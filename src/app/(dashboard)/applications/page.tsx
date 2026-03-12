@@ -5,11 +5,14 @@ import { Briefcase, Filter, Search } from 'lucide-react';
 import { useApplications } from '@/features/applications/hooks/use-applications';
 import { useApplicationMutations } from '@/features/applications/hooks/use-application-mutations';
 import { ApplicationsTableView } from '@/features/applications/components/applications-table-view';
-
+import { ApplicationDetailModal } from '@/features/applications/components/application-detail-modal';
+import { NotesModal } from '@/features/applications/components/notes-modal';
 import { CrudFormDialog } from '@/components/shared/crud-form-dialog';
 import { CrudConfirmDialog } from '@/components/shared/crud-confirm-dialog';
 import { applicationCrudConfig } from '@/features/applications/config/application-crud-config';
-import { JobApplication } from '@/types/job-application';
+import { JobApplication, JobApplicationStatus, Priority } from '@/types/job-application';
+
+const PAGE_SIZE = 8;
 
 export default function ApplicationsPage() {
     const [page, setPage] = useState(0);
@@ -17,22 +20,52 @@ export default function ApplicationsPage() {
     const [isCreateOpen, setIsCreateOpen] = useState(false);
     const [editingItem, setEditingItem] = useState<JobApplication | null>(null);
     const [deletingItem, setDeletingItem] = useState<JobApplication | null>(null);
+    const [viewingItem, setViewingItem] = useState<JobApplication | null>(null);
+    const [notesItem, setNotesItem] = useState<JobApplication | null>(null);
+    const [statusUpdatingId, setStatusUpdatingId] = useState<string | null>(null);
+    const [priorityUpdatingId, setPriorityUpdatingId] = useState<string | null>(null);
 
     const { data, isLoading } = useApplications({
         page: page + 1,
-        limit: 10,
+        limit: PAGE_SIZE,
         search: search || undefined,
     });
 
-    const { 
-        createApplication, 
-        updateApplication, 
-        deleteApplication 
+    const {
+        createApplication,
+        updateApplication,
+        updateStatus,
+        updatePriority,
+        deleteApplication
     } = useApplicationMutations();
 
+    const handleStatusChange = async (id: string, status: JobApplicationStatus) => {
+        setStatusUpdatingId(id);
+        try {
+            await updateStatus.mutateAsync({ id, status });
+        } finally {
+            setStatusUpdatingId(null);
+        }
+    };
+
+    const handlePriorityChange = async (id: string, priority: Priority) => {
+        setPriorityUpdatingId(id);
+        try {
+            await updatePriority.mutateAsync({ id, priority });
+        } finally {
+            setPriorityUpdatingId(null);
+        }
+    };
+
+    const handleSaveNotes = async (notes: string) => {
+        if (notesItem) {
+            await updateApplication.mutateAsync({ id: notesItem.id, data: { notes } });
+        }
+    };
+
     return (
-        <div className="min-h-screen bg-white dark:bg-zinc-950 p-6 sm:p-10">
-            <div className="max-w-7xl mx-auto space-y-8">
+        <div className="bg-background">
+            <div className="space-y-6">
                 {/* Header */}
                 <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6">
                     <div>
@@ -48,8 +81,8 @@ export default function ApplicationsPage() {
                             Manage your job search process and keep track of every application details.
                         </p>
                     </div>
-                    
-                    <button 
+
+                    <button
                         onClick={() => setIsCreateOpen(true)}
                         className="px-6 py-3 bg-[#A600FF] hover:bg-[#8B00D6] text-white font-bold rounded-xl shadow-lg shadow-[#A600FF]/20 transition-all hover:scale-[1.02] active:scale-[0.98]"
                     >
@@ -81,13 +114,36 @@ export default function ApplicationsPage() {
                     isLoading={isLoading}
                     pagination={{
                         page,
-                        pageSize: 10,
+                        pageSize: PAGE_SIZE,
                         onPageChange: (newPage: number) => setPage(newPage),
                         hasMore: data?.meta ? page + 1 < data.meta.totalPages : false,
                         totalElements: data?.meta?.totalItems,
                     }}
+                    onView={(item) => setViewingItem(item)}
                     onEdit={(item) => setEditingItem(item)}
                     onDelete={(item) => setDeletingItem(item)}
+                    onNotes={(item) => setNotesItem(item)}
+                    onStatusChange={handleStatusChange}
+                    onPriorityChange={handlePriorityChange}
+                    statusUpdatingId={statusUpdatingId}
+                    priorityUpdatingId={priorityUpdatingId}
+                />
+
+                {/* Detail Modal */}
+                <ApplicationDetailModal
+                    application={viewingItem}
+                    isOpen={!!viewingItem}
+                    onClose={() => setViewingItem(null)}
+                />
+
+                {/* Notes Modal */}
+                <NotesModal
+                    isOpen={!!notesItem}
+                    onClose={() => setNotesItem(null)}
+                    initialNotes={notesItem?.notes || ''}
+                    applicationTitle={notesItem ? `${notesItem.title} at ${notesItem.company}` : ''}
+                    onSave={handleSaveNotes}
+                    isLoading={updateApplication.isPending}
                 />
 
                 {/* Create Form Dialog */}

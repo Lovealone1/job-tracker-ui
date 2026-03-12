@@ -64,41 +64,33 @@ export function AppSidebar() {
             `}
         >
             {/* ═══════ HEADER CARD ═══════ */}
-            <div className="p-3">
+            <div className={isCollapsed ? 'w-full py-3' : 'p-3'}>
                 <div
                     onClick={toggleCollapsed}
                     className={`
-                        flex items-center overflow-hidden cursor-pointer
+                        flex items-center cursor-pointer
                         transition-all duration-300 ease-[cubic-bezier(0.4,0,0.2,1)]
                         ${isCollapsed
-                            ? 'justify-center w-[44px] mx-auto p-0'
+                            ? 'w-full justify-center'
                             : 'justify-between gap-3 rounded-xl bg-sidebar-accent/60 p-3 backdrop-blur-sm border border-sidebar-border hover:bg-sidebar-accent/80'
                         }
                     `}
                 >
-                    <div className="flex items-center gap-3 min-w-0">
+                    <div className={`flex items-center ${isCollapsed ? 'justify-center' : 'gap-3 min-w-0'}`}>
                         <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary text-primary-foreground shadow-md transition-transform duration-300">
                             <Briefcase size={18} />
                         </div>
-                        <span
-                            className={`
-                                text-sm font-bold tracking-tight whitespace-nowrap
-                                transition-all duration-300 ease-[cubic-bezier(0.4,0,0.2,1)]
-                                ${isCollapsed ? 'w-0 opacity-0 scale-95' : 'w-auto opacity-100 scale-100'}
-                            `}
-                        >
-                            Job Tracker
-                        </span>
+                        {!isCollapsed && (
+                            <span className="text-sm font-bold tracking-tight whitespace-nowrap">
+                                Job Tracker
+                            </span>
+                        )}
                     </div>
-                    <div
-                        className={`
-                            flex h-7 w-7 shrink-0 items-center justify-center rounded-md text-muted-foreground
-                            transition-all duration-300 ease-[cubic-bezier(0.4,0,0.2,1)]
-                            ${isCollapsed ? 'w-0 opacity-0 overflow-hidden' : 'w-7 opacity-100'}
-                        `}
-                    >
-                        <ChevronsLeft size={16} />
-                    </div>
+                    {!isCollapsed && (
+                        <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md text-muted-foreground">
+                            <ChevronsLeft size={16} />
+                        </div>
+                    )}
                 </div>
             </div>
 

@@ -2,6 +2,7 @@
 
 import { SidebarProvider, useSidebar } from '@/components/layout/sidebar-context';
 import { AppSidebar } from '@/components/layout/app-sidebar';
+import { TopHeader } from '@/components/layout/top-header';
 import { AuthGuard } from '@/components/auth/auth-guard';
 
 function DashboardContent({ children }: { children: React.ReactNode }) {
@@ -10,14 +11,18 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
     return (
         <div className="flex min-h-screen">
             <AppSidebar />
-            <main
+            <div
                 className={`
-                    flex-1 transition-all duration-300 ease-[cubic-bezier(0.4,0,0.2,1)]
+                    flex flex-1 flex-col min-h-screen
+                    transition-all duration-300 ease-[cubic-bezier(0.4,0,0.2,1)]
                     ${isCollapsed ? 'ml-[68px]' : 'ml-[260px]'}
                 `}
             >
-                {children}
-            </main>
+                <TopHeader />
+                <main className="flex-1 px-4 py-3">
+                    {children}
+                </main>
+            </div>
         </div>
     );
 }
