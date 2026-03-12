@@ -1,23 +1,8 @@
 import axios from 'axios';
+import { AuthResponse, LoginCredentials, User } from '@/types/auth';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
 
-export interface User {
-    id: string;
-    email: string;
-    role: string;
-}
-
-export interface AuthResponse {
-    access_token: string;
-    refresh_token: string;
-    user: User;
-}
-
-export interface LoginCredentials {
-    email: string;
-    password: string;
-}
 
 class AuthService {
     private readonly STORAGE_KEY = 'job_tracker_auth';
