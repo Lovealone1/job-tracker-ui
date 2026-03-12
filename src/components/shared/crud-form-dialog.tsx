@@ -152,7 +152,7 @@ export function CrudFormDialog({
                                 if (file) handleChange(field.name, file);
                             }}
                             className={cn(
-                                "block w-full text-sm text-zinc-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-bold file:bg-[#3b6154] file:text-white hover:file:bg-[#2b473e] transition-all",
+                                "block w-full text-sm text-zinc-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-bold file:bg-[#A600FF] file:text-white hover:file:bg-[#8B00D6] transition-all",
                                 error ? 'border-red-500' : ''
                             )}
                             disabled={isLoading}
@@ -205,7 +205,7 @@ export function CrudFormDialog({
                         <button
                             type="submit"
                             disabled={isLoading}
-                            className="px-4 py-2 text-sm font-bold text-white bg-[#3b6154] rounded-lg hover:bg-[#2b473e] transition-colors flex items-center gap-2 shadow-sm disabled:opacity-50"
+                            className="px-4 py-2 text-sm font-bold text-white bg-[#A600FF] rounded-lg hover:bg-[#8B00D6] transition-colors flex items-center gap-2 shadow-sm disabled:opacity-50"
                         >
                             {isLoading && <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />}
                             {isEdit ? 'Save Changes' : 'Create'}

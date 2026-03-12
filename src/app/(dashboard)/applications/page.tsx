@@ -5,7 +5,7 @@ import { Briefcase, Filter, Search } from 'lucide-react';
 import { useApplications } from '@/features/applications/hooks/use-applications';
 import { useApplicationMutations } from '@/features/applications/hooks/use-application-mutations';
 import { ApplicationsTableView } from '@/features/applications/components/applications-table-view';
-import { TempTokenInput } from '@/components/auth/temp-token-input';
+
 import { CrudFormDialog } from '@/components/shared/crud-form-dialog';
 import { CrudConfirmDialog } from '@/components/shared/crud-confirm-dialog';
 import { applicationCrudConfig } from '@/features/applications/config/application-crud-config';
@@ -37,7 +37,7 @@ export default function ApplicationsPage() {
                 <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6">
                     <div>
                         <div className="flex items-center gap-3 mb-2">
-                            <div className="w-10 h-10 rounded-xl bg-[#3b6154] flex items-center justify-center text-white shadow-lg shadow-[#3b6154]/20">
+                            <div className="w-10 h-10 rounded-xl bg-[#A600FF] flex items-center justify-center text-white shadow-lg shadow-[#A600FF]/20">
                                 <Briefcase size={20} />
                             </div>
                             <h1 className="text-4xl font-black tracking-tight text-zinc-900 dark:text-white">
@@ -51,14 +51,11 @@ export default function ApplicationsPage() {
                     
                     <button 
                         onClick={() => setIsCreateOpen(true)}
-                        className="px-6 py-3 bg-[#3b6154] hover:bg-[#2b473e] text-white font-bold rounded-xl shadow-lg shadow-[#3b6154]/20 transition-all hover:scale-[1.02] active:scale-[0.98]"
+                        className="px-6 py-3 bg-[#A600FF] hover:bg-[#8B00D6] text-white font-bold rounded-xl shadow-lg shadow-[#A600FF]/20 transition-all hover:scale-[1.02] active:scale-[0.98]"
                     >
                         New Application
                     </button>
                 </div>
-
-                {/* Temp Token Input for validation */}
-                <TempTokenInput />
 
                 {/* Filters & Search */}
                 <div className="flex flex-col sm:flex-row gap-4">
@@ -69,7 +66,7 @@ export default function ApplicationsPage() {
                             placeholder="Search by position or company..."
                             value={search}
                             onChange={(e) => setSearch(e.target.value)}
-                            className="w-full pl-10 pr-4 py-3 bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#3b6154] transition-all"
+                            className="w-full pl-10 pr-4 py-3 bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#A600FF] transition-all"
                         />
                     </div>
                     <button className="flex items-center gap-2 px-4 py-3 bg-zinc-100 dark:bg-zinc-900 text-zinc-600 dark:text-zinc-400 rounded-xl text-sm font-bold border border-zinc-200 dark:border-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-800 transition-colors">

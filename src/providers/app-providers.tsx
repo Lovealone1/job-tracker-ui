@@ -7,7 +7,12 @@ import { ReactNode } from 'react';
 
 export function AppProviders({ children }: { children: ReactNode }) {
     return (
-        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+        <ThemeProvider
+            attribute="class"
+            defaultTheme="dark"
+            storageKey="job-tracker-theme"
+            disableTransitionOnChange
+        >
             <QueryClientProvider client={queryClient}>
                 {children}
             </QueryClientProvider>
