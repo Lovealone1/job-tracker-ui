@@ -70,7 +70,7 @@ export default function LoginPage() {
                             <span className="text-[#A600FF]"> career journey</span>
                         </h2>
                         <p className="text-lg text-zinc-400 max-w-md leading-relaxed">
-                            Track applications, manage interviews, organize your CVs, and never miss a follow-up. All in one place.
+                            Track applications, manage interviews, organize your resumes, and never miss a follow-up. All in one place.
                         </p>
                     </div>
 
