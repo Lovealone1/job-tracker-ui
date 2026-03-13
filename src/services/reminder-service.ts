@@ -10,13 +10,17 @@ import {
     UpdateReminderTypeDto,
     RescheduleReminderDto,
     ReminderDashboardSummary,
+    ReminderPaginationQuery,
+    PaginatedReminderResponse,
 } from '@/types/reminder';
 
 class ReminderService {
     private readonly resource = '/reminders';
 
-    async getAll(): Promise<ReminderSummary[]> {
-        const response = await apiClient.get<ReminderSummary[]>(this.resource);
+    async getAll(query?: ReminderPaginationQuery): Promise<PaginatedReminderResponse> {
+        const response = await apiClient.get<PaginatedReminderResponse>(this.resource, {
+            params: query,
+        });
         return response.data;
     }
 

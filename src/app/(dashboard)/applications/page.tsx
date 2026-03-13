@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Briefcase, Filter, Search } from 'lucide-react';
+import { Briefcase, Filter, Search, Plus } from 'lucide-react';
 import { useApplications } from '@/features/applications/hooks/use-applications';
 import { useApplicationMutations } from '@/features/applications/hooks/use-application-mutations';
 import { ApplicationsTableView } from '@/features/applications/components/applications-table-view';
@@ -127,32 +127,36 @@ export default function ApplicationsPage() {
     });
 
     return (
-        <div className="bg-background">
-            <div className="space-y-6">
-                {/* Header */}
-                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6">
-                    <div>
-                        <div className="flex items-center gap-3 mb-2">
-                            <div className="w-10 h-10 rounded-xl bg-[#A600FF] flex items-center justify-center text-white shadow-lg shadow-[#A600FF]/20">
-                                <Briefcase size={20} />
-                            </div>
-                            <h1 className="text-4xl font-black tracking-tight text-zinc-900 dark:text-white">
+        <div className="h-[calc(100vh-72px)] flex flex-col overflow-hidden bg-background">
+            {/* Header */}
+            <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 px-8 pt-2 pb-4 bg-white/40 dark:bg-zinc-950/20 backdrop-blur-md border-b border-zinc-200 dark:border-zinc-800">
+                <div className="space-y-4">
+                    <div className="flex items-center gap-4">
+                        <div className="p-2.5 bg-[#A600FF] shadow-lg shadow-[#A600FF]/25 rounded-2xl">
+                            <Briefcase className="w-8 h-8 text-white" />
+                        </div>
+                        <div>
+                            <h1 className="text-5xl font-black tracking-tighter text-zinc-900 dark:text-zinc-50 leading-none italic">
                                 Applications
                             </h1>
+                            <p className="text-zinc-500 dark:text-zinc-400 text-[10px] font-black uppercase tracking-[0.3em] mt-3 flex items-center gap-2">
+                                <span className="w-2 h-2 rounded-full bg-[#A600FF]" />
+                                Job Search Process & Tracking
+                            </p>
                         </div>
-                        <p className="text-zinc-500 dark:text-zinc-400 max-w-md font-medium">
-                            Manage your job search process and keep track of every application details.
-                        </p>
                     </div>
-
-                    <button
-                        onClick={() => setIsCreateOpen(true)}
-                        className="px-6 py-3 bg-[#A600FF] hover:bg-[#8B00D6] text-white font-bold rounded-xl shadow-lg shadow-[#A600FF]/20 transition-all hover:scale-[1.02] active:scale-[0.98]"
-                    >
-                        New Application
-                    </button>
                 </div>
 
+                <button
+                    onClick={() => setIsCreateOpen(true)}
+                    className="flex items-center gap-2 px-6 py-3 bg-[#A600FF] hover:bg-[#8B00D6] text-white rounded-2xl text-[10px] font-black shadow-2xl shadow-[#A600FF]/40 transition-all hover:-translate-y-1 active:translate-y-0 text-nowrap uppercase tracking-widest"
+                >
+                    <Plus className="w-5 h-5" />
+                    Create
+                </button>
+            </div>
+
+            <div className="flex-1 overflow-y-auto p-8 pt-6 space-y-6 custom-scrollbar">
                 {/* Filters & Search */}
                 <div className="flex flex-col sm:flex-row gap-4">
                     <div className="relative flex-1">
@@ -210,8 +214,9 @@ export default function ApplicationsPage() {
                     statusUpdatingId={statusUpdatingId}
                     priorityUpdatingId={priorityUpdatingId}
                 />
+            </div>
 
-                {/* Detail Modal */}
+            {/* Detail Modal */}
                 <ApplicationDetailModal
                     application={viewingItem}
                     isOpen={!!viewingItem}
@@ -270,8 +275,7 @@ export default function ApplicationsPage() {
                     confirmText="Delete"
                     isDestructive={true}
                     isLoading={deleteApplication.isPending}
-                />
-            </div>
+            />
         </div>
     );
 }

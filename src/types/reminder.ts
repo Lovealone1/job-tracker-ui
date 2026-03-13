@@ -77,3 +77,25 @@ export interface RescheduleReminderDto {
 export interface ReminderDashboardSummary {
     upcomingCount: number;
 }
+
+// ── Pagination ───────────────────────────────────────────
+
+export interface ReminderPaginationQuery {
+    page?: number;
+    limit?: number;
+    search?: string;
+    from?: string; // ISO date
+    to?: string;   // ISO date
+    status?: ReminderStatus;
+    type?: ReminderType;
+}
+
+export interface PaginatedReminderResponse {
+    data: ReminderSummary[];
+    meta: {
+        total: number;
+        page: number;
+        limit: number;
+        totalPages: number;
+    };
+}
