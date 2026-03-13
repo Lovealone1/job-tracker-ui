@@ -18,7 +18,8 @@ import {
     ChevronUp,
     Sparkles,
     Type,
-    RefreshCcw
+    RefreshCcw,
+    Lock
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Resume, ResumeVariant } from '@/types/resume';
@@ -28,13 +29,15 @@ import { Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 
 interface ResumeEditorProps {
-    initialData?: Resume | Partial<Resume>;
-    onSave: (data: Resume, options?: { exit?: boolean }) => Promise<void>;
+    initialData?: Resume | ResumeVariant;
+    onSave: (data: any, options?: { exit?: boolean }) => Promise<void>;
 }
 
 type EditorSection = 'personal' | 'summary' | 'experience' | 'education' | 'projects' | 'skills' | 'others';
 
 export function ResumeEditor({ initialData, onSave }: ResumeEditorProps) {
+    const isVariant = initialData && 'resumeId' in initialData;
+    
     const [activeSection, setActiveSection] = useState<EditorSection>('personal');
     const [viewMode, setViewMode] = useState<'real' | 'yaml'>('yaml');
     const [renderLoading, setRenderLoading] = useState(false);
@@ -233,11 +236,21 @@ export function ResumeEditor({ initialData, onSave }: ResumeEditorProps) {
                 <div className="flex-1 overflow-y-auto p-12 bg-white dark:bg-zinc-950 custom-scrollbar">
                     <div className="max-w-xl mx-auto space-y-8">
                         <div>
-                            <h2 className="text-3xl font-black tracking-tighter italic mb-2">
-                                {sections.find(s => s.id === activeSection)?.label}
-                            </h2>
+                            <div className="flex items-center gap-3 mb-2">
+                                <h2 className="text-3xl font-black tracking-tighter italic">
+                                    {sections.find(s => s.id === activeSection)?.label}
+                                </h2>
+                                {isVariant && ['personal', 'summary', 'education'].includes(activeSection) && (
+                                    <div className="flex items-center gap-2 px-3 py-1 bg-amber-100 dark:bg-amber-900/30 rounded-full border border-amber-200 dark:border-amber-800">
+                                        <Lock className="w-3 h-3 text-amber-600 dark:text-amber-400" />
+                                        <span className="text-[10px] font-black uppercase tracking-wider text-amber-600 dark:text-amber-400">Locked Sections</span>
+                                    </div>
+                                )}
+                            </div>
                             <p className="text-zinc-500 text-sm">
-                                Fill in the details for your resume {activeSection.toLowerCase()}.
+                                {isVariant && ['personal', 'summary', 'education'].includes(activeSection)
+                                    ? "These sections are inherited from the base resume and cannot be modified in a variant."
+                                    : `Fill in the details for your resume ${activeSection.toLowerCase()}.`}
                             </p>
                         </div>
 
@@ -248,9 +261,10 @@ export function ResumeEditor({ initialData, onSave }: ResumeEditorProps) {
                                     <div className="space-y-2 col-span-2">
                                         <label className="text-[10px] font-black uppercase tracking-widest text-zinc-400">Full Name</label>
                                         <input 
-                                            className="w-full bg-zinc-100/50 dark:bg-zinc-900/50 border border-transparent focus:border-[#A600FF] p-4 rounded-2xl outline-none transition-all"
+                                            className="w-full bg-zinc-100/50 dark:bg-zinc-900/50 border border-transparent focus:border-[#A600FF] p-4 rounded-2xl outline-none transition-all disabled:opacity-50"
                                             value={resumeData.resumeName}
                                             onChange={(e) => setResumeData({...resumeData, resumeName: e.target.value})}
+                                            disabled={isVariant}
                                         />
                                     </div>
                                     <div className="space-y-2">
@@ -299,10 +313,11 @@ export function ResumeEditor({ initialData, onSave }: ResumeEditorProps) {
                                     <div className="space-y-2">
                                         <label className="text-[10px] font-black uppercase tracking-widest text-zinc-400">GitHub URL</label>
                                         <input 
-                                            className="w-full bg-zinc-100/50 dark:bg-zinc-900/50 border border-transparent focus:border-[#A600FF] p-4 rounded-2xl outline-none transition-all"
+                                            className="w-full bg-zinc-100/50 dark:bg-zinc-900/50 border border-transparent focus:border-[#A600FF] p-4 rounded-2xl outline-none transition-all disabled:opacity-50"
                                             placeholder="https://github.com/..."
                                             value={resumeData.personalInfo?.github || ''}
                                             onChange={(e) => setResumeData({...resumeData, personalInfo: {...(resumeData.personalInfo || {}), github: e.target.value}})}
+                                            disabled={isVariant}
                                         />
                                     </div>
                                 </div>
@@ -313,10 +328,11 @@ export function ResumeEditor({ initialData, onSave }: ResumeEditorProps) {
                                     <label className="text-[10px] font-black uppercase tracking-widest text-zinc-400">Career Summary</label>
                                     <textarea 
                                         rows={8}
-                                        className="w-full bg-zinc-100/50 dark:bg-zinc-900/50 border border-transparent focus:border-[#A600FF] p-4 rounded-2xl outline-none transition-all resize-none"
+                                        className="w-full bg-zinc-100/50 dark:bg-zinc-900/50 border border-transparent focus:border-[#A600FF] p-4 rounded-2xl outline-none transition-all resize-none disabled:opacity-50"
                                         placeholder="Write a brief professional summary..."
                                         value={resumeData.summary}
                                         onChange={(e) => setResumeData({...resumeData, summary: e.target.value})}
+                                        disabled={isVariant}
                                     />
                                 </div>
                             )}
@@ -401,13 +417,15 @@ export function ResumeEditor({ initialData, onSave }: ResumeEditorProps) {
                                             </div>
                                         </div>
                                     ))}
-                                    <button 
-                                        onClick={() => setResumeData({...resumeData, education: [...resumeData.education, { institution: '', degree: '', fieldOfStudy: '', startDate: '', endDate: '' }]})}
-                                        className="w-full py-4 border-2 border-dashed border-zinc-200 dark:border-zinc-800 rounded-3xl flex items-center justify-center gap-2 text-zinc-400 hover:text-[#A600FF] hover:border-[#A600FF]/50 transition-all font-bold"
-                                    >
-                                        <Plus className="w-5 h-5" />
-                                        Add Education
-                                    </button>
+                                    {!isVariant && (
+                                        <button 
+                                            onClick={() => setResumeData({...resumeData, education: [...resumeData.education, { institution: '', degree: '', fieldOfStudy: '', startDate: '', endDate: '' }]})}
+                                            className="w-full py-4 border-2 border-dashed border-zinc-200 dark:border-zinc-800 rounded-3xl flex items-center justify-center gap-2 text-zinc-400 hover:text-[#A600FF] hover:border-[#A600FF]/50 transition-all font-bold"
+                                        >
+                                            <Plus className="w-5 h-5" />
+                                            Add Education
+                                        </button>
+                                    )}
                                 </div>
                             )}
 

@@ -72,6 +72,7 @@ export interface ResumeVariant {
     atsScore?: number;
     matchScore?: number;
     pdfUrl?: string;
+    template?: string;
     createdAt: string;
     updatedAt: string;
 }
@@ -94,7 +95,7 @@ export interface UpdateResumeDto extends Partial<CreateResumeDto> {}
 
 export interface CreateResumeVariantDto {
     resumeId: string;
-    jobApplicationId: string;
+    jobApplicationId?: string;
     title?: string;
     resumeName?: string;
     personalInfo?: Partial<ResumePersonalInfo>;
@@ -110,7 +111,7 @@ export interface CreateResumeVariantDto {
     matchScore?: number;
 }
 
-export interface UpdateResumeVariantDto extends Partial<Omit<CreateResumeVariantDto, 'resumeId' | 'jobApplicationId'>> {
+export interface UpdateResumeVariantDto extends Partial<Omit<CreateResumeVariantDto, 'resumeId'>> {
     modifications?: Record<string, any>;
     pdfUrl?: string;
 }

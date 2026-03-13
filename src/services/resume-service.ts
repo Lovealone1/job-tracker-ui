@@ -102,6 +102,27 @@ class ResumeService {
     async deleteVariant(id: string): Promise<void> {
         await apiClient.delete(`${this.variantsResource}/${id}`);
     }
+
+    // --- Variant Rendering ---
+    getVariantRenderUrls(id: string) {
+        const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api/v1';
+        return {
+            pdf: `${baseUrl}${this.variantsResource}/${id}/pdf`,
+            preview: `${baseUrl}${this.variantsResource}/${id}/preview`,
+        };
+    }
+
+    async renderVariantPdf(id: string): Promise<Blob> {
+        const response = await apiClient.post(`${this.variantsResource}/${id}/render`);
+        return this.downloadVariantPdf(id);
+    }
+
+    async downloadVariantPdf(id: string): Promise<Blob> {
+        const response = await apiClient.get(`${this.variantsResource}/${id}/pdf`, {
+            responseType: 'blob'
+        });
+        return new Blob([response.data], { type: 'application/pdf' });
+    }
 }
 
 export const resumeService = new ResumeService();

@@ -1,9 +1,11 @@
 'use client';
 
 import React, { useState } from 'react';
+import { toast } from 'sonner';
 import { Briefcase, Filter, Search, Plus } from 'lucide-react';
 import { useApplications } from '@/features/applications/hooks/use-applications';
 import { useApplicationMutations } from '@/features/applications/hooks/use-application-mutations';
+import { useResumeVariants } from '@/features/resumes/hooks/use-resumes';
 import { ApplicationsTableView } from '@/features/applications/components/applications-table-view';
 import { ApplicationDetailModal } from '@/features/applications/components/application-detail-modal';
 import { NotesModal } from '@/features/applications/components/notes-modal';
@@ -55,8 +57,30 @@ export default function ApplicationsPage() {
         updateApplication,
         updateStatus,
         updatePriority,
+        updateResumeVariant,
         deleteApplication
     } = useApplicationMutations();
+
+    const { data: variantsData } = useResumeVariants();
+    const variants = variantsData || [];
+
+    // Correctly typed variant options for selectors
+    const variantOptions = [
+        { label: 'No CV linked', value: '' },
+        ...variants.map(v => ({ label: v.title || 'Untitled', value: v.id || '' }))
+    ];
+
+    // Build dynamic config for CRUD dialogs
+    const dynamicCrudConfig = React.useMemo(() => {
+        const config = { ...applicationCrudConfig };
+        config.formFields = config.formFields.map(field => {
+            if (field.name === 'resumeVariantId') {
+                return { ...field, options: variantOptions };
+            }
+            return field;
+        });
+        return config;
+    }, [variantOptions]);
 
     const handleStatusChange = async (id: string, status: JobApplicationStatus) => {
         setStatusUpdatingId(id);
@@ -73,6 +97,14 @@ export default function ApplicationsPage() {
             await updatePriority.mutateAsync({ id, priority });
         } finally {
             setPriorityUpdatingId(null);
+        }
+    };
+
+    const handleResumeVariantChange = async (id: string, resumeVariantId: string) => {
+        try {
+            await updateResumeVariant.mutateAsync({ id, resumeVariantId });
+        } catch (error) {
+            toast.error('Failed to link CV variant');
         }
     };
 
@@ -211,8 +243,10 @@ export default function ApplicationsPage() {
                     onNotes={(item) => setNotesItem(item)}
                     onStatusChange={handleStatusChange}
                     onPriorityChange={handlePriorityChange}
+                    onResumeVariantChange={handleResumeVariantChange}
                     statusUpdatingId={statusUpdatingId}
                     priorityUpdatingId={priorityUpdatingId}
+                    resumeVariants={variants.map(v => ({ id: v.id, title: v.title || 'Untitled' }))}
                 />
             </div>
 
@@ -241,7 +275,7 @@ export default function ApplicationsPage() {
                         await createApplication.mutateAsync(formData);
                         setIsCreateOpen(false);
                     }}
-                    config={applicationCrudConfig}
+                    config={dynamicCrudConfig}
                     isLoading={createApplication.isPending}
                 />
 
@@ -256,7 +290,7 @@ export default function ApplicationsPage() {
                             setEditingItem(null);
                         }
                     }}
-                    config={applicationCrudConfig}
+                    config={dynamicCrudConfig}
                     isLoading={updateApplication.isPending}
                 />
 

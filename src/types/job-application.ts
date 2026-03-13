@@ -71,6 +71,7 @@ export interface JobApplication {
     updatedAt: string; // ISO Date string
     profileId: string;
     resumeVariantId?: string;
+    resumeVariant?: { id: string; title: string };
 }
 
 export interface PaginationMeta {
