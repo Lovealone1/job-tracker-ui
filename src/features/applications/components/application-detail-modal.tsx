@@ -13,6 +13,7 @@ import {
     DollarSign,
     Tag,
     Clock,
+    FileText,
 } from 'lucide-react';
 import { JobApplication } from '@/types/job-application';
 
@@ -105,6 +106,7 @@ export function ApplicationDetailModal({ application, isOpen, onClose }: Applica
                         <InfoRow icon={Tag} label="Seniority Level" value={application.seniorityLevel} />
                         <InfoRow icon={DollarSign} label="Compensation" value={formatCompensation(application)} />
                         <InfoRow icon={Tag} label="Benefits" value={application.benefits} />
+                        <InfoRow icon={FileText} label="Linked Resume" value={application.resumeVariant?.title || 'None linked'} />
                     </div>
 
                     {/* Job URL */}

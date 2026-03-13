@@ -9,7 +9,7 @@ const routeLabels: Record<string, string> = {
     dashboard: 'Dashboard',
     applications: 'Applications',
     interviews: 'Interviews',
-    cvs: 'CVs',
+    resumes: 'Resumes',
     reminders: 'Reminders',
     settings: 'Settings',
 };

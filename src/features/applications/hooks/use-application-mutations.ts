@@ -38,11 +38,18 @@ export function useApplicationMutations() {
         onSuccess: invalidateAll,
     });
 
+    const updateResumeVariantMutation = useMutation({
+        mutationFn: ({ id, resumeVariantId }: { id: string; resumeVariantId: string }) => 
+            applicationService.updateResumeVariant(id, resumeVariantId),
+        onSuccess: invalidateAll,
+    });
+
     return {
         createApplication: createMutation,
         updateApplication: updateMutation,
         updateStatus: updateStatusMutation,
         updatePriority: updatePriorityMutation,
+        updateResumeVariant: updateResumeVariantMutation,
         deleteApplication: deleteMutation,
     };
 }

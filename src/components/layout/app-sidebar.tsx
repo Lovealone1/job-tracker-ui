@@ -24,7 +24,7 @@ const navItems = [
     { label: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
     { label: 'Applications', href: '/applications', icon: Briefcase },
     { label: 'Interviews', href: '/interviews', icon: MessageSquare },
-    { label: 'CVs', href: '/cvs', icon: FileText },
+    { label: 'Resumes', href: '/resumes', icon: FileText },
     { label: 'Reminders', href: '/reminders', icon: CalendarClock },
 ];
 

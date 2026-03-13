@@ -28,6 +28,7 @@ export const jobApplicationSchema = z.object({
     benefits: z.string().optional(),
     status: z.nativeEnum(JobApplicationStatus).default(JobApplicationStatus.SAVED),
     priority: z.nativeEnum(Priority).default(Priority.MEDIUM),
+    resumeVariantId: z.string().optional().or(z.literal('')),
 });
 
 export const applicationCrudConfig: CrudEntityConfig = {
@@ -161,9 +162,10 @@ export const applicationCrudConfig: CrudEntityConfig = {
             placeholder: 'Job description...',
         },
         {
-            name: 'resumeFile',
-            label: 'CV / Resume',
-            type: 'file',
+            name: 'resumeVariantId',
+            label: 'Linked CV Variant',
+            type: 'select',
+            options: [], // To be populated dynamically in the page
         }
     ]
 };
