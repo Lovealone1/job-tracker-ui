@@ -55,14 +55,28 @@ export function AppSidebar() {
     };
 
     return (
-        <aside
-            className={`
-                fixed left-0 top-0 z-40 flex h-screen flex-col overflow-hidden
-                border-r border-sidebar-border bg-sidebar text-sidebar-foreground
-                transition-[width] duration-300 ease-[cubic-bezier(0.4,0,0.2,1)]
-                ${isCollapsed ? 'w-[68px]' : 'w-[260px]'}
-            `}
-        >
+        <>
+            {/* ═══════ MOBILE BACKDROP ═══════ */}
+            {!isCollapsed && (
+                <div 
+                    className="fixed inset-0 z-30 bg-background/20 backdrop-blur-sm md:hidden"
+                    onClick={toggleCollapsed}
+                />
+            )}
+
+            <aside
+                className={`
+                    fixed left-0 top-0 z-40 flex h-screen flex-col overflow-hidden
+                    border-r border-sidebar-border bg-sidebar text-sidebar-foreground
+                    transition-all duration-300 ease-[cubic-bezier(0.4,0,0.2,1)]
+                    md:w-[260px]
+                    ${isCollapsed 
+                        ? 'w-[68px] -translate-x-full md:translate-x-0' 
+                        : 'w-[260px] translate-x-0'
+                    }
+                    ${isCollapsed ? 'md:w-[68px]' : 'md:w-[260px]'}
+                `}
+            >
             {/* ═══════ HEADER CARD ═══════ */}
             <div className={isCollapsed ? 'w-full py-3' : 'p-3'}>
                 <div
@@ -279,5 +293,6 @@ export function AppSidebar() {
                 </div>
             </div>
         </aside>
+        </>
     );
 }

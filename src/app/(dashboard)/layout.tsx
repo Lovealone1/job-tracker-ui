@@ -14,8 +14,8 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
             <div
                 className={`
                     flex flex-1 flex-col min-h-screen
-                    transition-all duration-300 ease-[cubic-bezier(0.4,0,0.2,1)]
-                    ${isCollapsed ? 'ml-[68px]' : 'ml-[260px]'}
+                    transition-[margin] duration-300 ease-[cubic-bezier(0.4,0,0.2,1)]
+                    ${isCollapsed ? 'ml-0 md:ml-[68px]' : 'ml-0 md:ml-[260px]'}
                 `}
             >
                 <TopHeader />
