@@ -44,3 +44,19 @@ export function useInterview(id: string) {
         enabled: authService.isAuthenticated() && !!id,
     });
 }
+
+export function useInterviewSummary() {
+    return useQuery({
+        queryKey: [...INTERVIEWS_KEYS.all, 'summary'],
+        queryFn: () => interviewService.getSummary(),
+        enabled: authService.isAuthenticated(),
+    });
+}
+
+export function useNextInterview() {
+    return useQuery({
+        queryKey: [...INTERVIEWS_KEYS.all, 'next'],
+        queryFn: () => interviewService.getNext(),
+        enabled: authService.isAuthenticated(),
+    });
+}

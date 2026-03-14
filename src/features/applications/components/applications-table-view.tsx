@@ -41,7 +41,7 @@ const statusColors: Record<JobApplicationStatus, string> = {
     [JobApplicationStatus.SAVED]: 'bg-zinc-100 text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400',
     [JobApplicationStatus.APPLIED]: 'bg-blue-100 text-blue-600 dark:bg-blue-900/20 dark:text-blue-400',
     [JobApplicationStatus.INTERVIEWING]: 'bg-purple-100 text-purple-600 dark:bg-purple-900/20 dark:text-purple-400',
-    [JobApplicationStatus.OFFER]: 'bg-green-100 text-green-600 dark:bg-green-900/20 dark:text-green-400',
+    [JobApplicationStatus.OFFER_RECEIVED]: 'bg-green-100 text-green-600 dark:bg-green-900/20 dark:text-green-400',
     [JobApplicationStatus.REJECTED]: 'bg-red-100 text-red-600 dark:bg-red-900/20 dark:text-red-400',
     [JobApplicationStatus.WITHDRAWN]: 'bg-orange-100 text-orange-600 dark:bg-orange-900/20 dark:text-orange-400',
     [JobApplicationStatus.GHOSTED]: 'bg-zinc-300 text-zinc-700 dark:bg-zinc-700 dark:text-zinc-300',

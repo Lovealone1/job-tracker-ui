@@ -76,6 +76,7 @@ export interface RescheduleReminderDto {
 
 export interface ReminderDashboardSummary {
     upcomingCount: number;
+    completedCount: number;
 }
 
 // ── Pagination ───────────────────────────────────────────
