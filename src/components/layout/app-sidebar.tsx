@@ -69,12 +69,10 @@ export function AppSidebar() {
                     fixed left-0 top-0 z-40 flex h-screen flex-col overflow-hidden
                     border-r border-sidebar-border bg-sidebar text-sidebar-foreground
                     transition-all duration-300 ease-[cubic-bezier(0.4,0,0.2,1)]
-                    md:w-[260px]
                     ${isCollapsed 
                         ? 'w-[68px] -translate-x-full md:translate-x-0' 
                         : 'w-[260px] translate-x-0'
                     }
-                    ${isCollapsed ? 'md:w-[68px]' : 'md:w-[260px]'}
                 `}
             >
             {/* ═══════ HEADER CARD ═══════ */}
