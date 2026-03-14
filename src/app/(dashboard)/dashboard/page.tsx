@@ -75,7 +75,7 @@ const Progress = ({ value = 0, className, barClassName }: { value?: number; clas
 
 export default function DashboardPage() {
     // 1. Data Fetching
-    const { data: appsData, isLoading: appsLoading } = useApplications({ limit: 5 });
+    const { data: appsData, isLoading: appsLoading } = useApplications({ limit: 6 });
     const { data: appSummary, isLoading: summaryLoading } = useApplicationSummary();
     const { data: interviewSummary, isLoading: intSummaryLoading } = useInterviewSummary();
     const { data: reminderSummary, isLoading: remSummaryLoading } = useReminderDashboardSummary();
@@ -158,15 +158,15 @@ export default function DashboardPage() {
                 {/* 1. KPI Row (Compact) */}
                 <div className="grid grid-cols-4 gap-4 shrink-0">
                     {kpis.map((kpi) => (
-                        <div key={kpi.title} className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl p-3 shadow-sm hover:shadow-md transition-all border-b-2 border-b-transparent hover:border-b-[#A600FF]">
-                            <div className="flex justify-between items-start mb-1.5">
-                                <div className={cn("p-1.5 rounded-lg", kpi.bg)}>
-                                    <kpi.icon size={14} className={kpi.color} />
+                        <div key={kpi.title} className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl p-5 shadow-sm hover:shadow-md transition-all border-b-2 border-b-transparent hover:border-b-[#A600FF] group/kpi">
+                            <div className="flex justify-between items-start mb-2">
+                                <div className={cn("p-2 rounded-lg transition-colors group-hover/kpi:bg-[#A600FF]/10", kpi.bg)}>
+                                    <kpi.icon size={16} className={cn(kpi.color, "group-hover/kpi:text-[#A600FF]")} />
                                 </div>
-                                <span className="text-xl font-black tracking-tighter text-zinc-900 dark:text-zinc-100 leading-none">{kpi.value}</span>
+                                <span className="text-2xl font-black tracking-tighter text-zinc-900 dark:text-zinc-100 leading-none group-hover/kpi:text-[#A600FF] transition-colors">{kpi.value}</span>
                             </div>
-                            <h4 className="text-[9px] font-black text-zinc-400 uppercase tracking-widest italic leading-tight">{kpi.title}</h4>
-                            <p className="text-[8px] text-zinc-500 mt-0.5 font-bold uppercase tracking-wider opacity-60 leading-tight">{kpi.desc}</p>
+                            <h4 className="text-[10px] font-black text-zinc-400 uppercase tracking-widest italic leading-tight group-hover/kpi:text-zinc-500 transition-colors">{kpi.title}</h4>
+                            <p className="text-[9px] text-zinc-500 mt-1 font-bold uppercase tracking-wider opacity-60 leading-tight">{kpi.desc}</p>
                         </div>
                     ))}
                 </div>
@@ -191,8 +191,11 @@ export default function DashboardPage() {
                         </div>
                         
                         <div className="flex-1 overflow-y-auto scrollbar-hide">
-                            {recentApplications.map((app) => (
-                                <Link key={app.id} href="/applications" className="group flex items-center gap-5 px-6 py-5 hover:bg-zinc-50 dark:hover:bg-[#A600FF]/5 transition-all border-b border-zinc-50 dark:border-zinc-800/20 last:border-0 overflow-hidden">
+                            {recentApplications?.slice(0, 6).map((app) => (
+                                <div 
+                                    key={app.id} 
+                                    className="px-6 py-[15px] border-b last:border-0 border-zinc-50 dark:border-zinc-800/50 flex items-center gap-4 hover:bg-zinc-50/50 dark:hover:bg-zinc-800/30 transition-all cursor-pointer group"
+                                >
                                     <div className="w-12 h-12 rounded-xl bg-zinc-100/80 dark:bg-zinc-800/60 flex items-center justify-center shrink-0 border border-zinc-200/50 dark:border-zinc-700/50 group-hover:border-[#A600FF]/30 transition-all">
                                         <span className="text-xl font-black text-zinc-500 dark:text-zinc-400 group-hover:text-[#A600FF] uppercase">
                                             {(app.company || "?").trim().charAt(0)}
@@ -210,7 +213,7 @@ export default function DashboardPage() {
                                         {(app.status || '').replace(/_/g, ' ')}
                                     </Badge>
                                     <ArrowUpRight size={18} className="text-zinc-300 opacity-0 group-hover:opacity-100 group-hover:text-[#A600FF] transition-all transform group-hover:translate-x-1 group-hover:-translate-y-1" />
-                                </Link>
+                                </div>
                             ))}
                             {recentApplications.length === 0 && (
                                 <div className="h-full flex flex-col items-center justify-center text-zinc-300 py-8">
@@ -219,12 +222,19 @@ export default function DashboardPage() {
                                 </div>
                             )}
                         </div>
+
+                        {/* TABLE FOOTER */}
+                        <div className="px-6 py-4 bg-zinc-50/50 dark:bg-zinc-900/40 border-t border-zinc-100 dark:border-zinc-800/80 mt-auto flex justify-end items-center shrink-0">
+                            <div className="flex items-center gap-1.5 text-[10px] font-black uppercase tracking-[0.2em] text-[#A600FF] italic">
+                                Sync active <div className="w-2 h-2 rounded-full bg-[#A600FF] animate-pulse shadow-[0_0_8px_rgba(166,0,255,0.5)]" />
+                            </div>
+                        </div>
                     </div>
 
                     {/* Right: Next Interview & Stats */}
                     <div className="col-span-12 lg:col-span-5 xl:col-span-4 flex flex-col gap-4 h-[600px]">
                         {/* NEXT INTERVIEW CARD */}
-                        <div className="bg-[#18181B] dark:bg-[#111113] text-white rounded-[1.5rem] p-5 shadow-xl flex flex-col relative overflow-hidden border border-zinc-800/50 shrink-0">
+                        <div className="bg-[#18181B] dark:bg-[#111113] text-white rounded-[1.5rem] p-6 shadow-xl flex flex-col relative overflow-hidden border border-zinc-800/50 shrink-0">
                             
                             {/* Ambient Flare */}
                             <div className="absolute top-0 right-0 w-32 h-32 bg-[#A600FF]/10 blur-[50px] rounded-full" />
@@ -239,20 +249,20 @@ export default function DashboardPage() {
                                     )}
                                 </div>
 
-                                <div className="h-px w-full bg-zinc-800 mb-4 shrink-0" />
+                                <div className="h-px w-full bg-zinc-800 mb-5 shrink-0" />
 
                                 {nextInterview ? (
                                     <div className="flex flex-col flex-1">
-                                        <div className="mb-3">
-                                            <h2 className="text-[20px] font-black tracking-tighter leading-tight mb-0.5 text-white">
+                                        <div className="mb-4">
+                                            <h2 className="text-[20px] font-black tracking-tighter leading-tight mb-1 text-white">
                                                 {nextInterview.jobApplication?.title}
                                             </h2>
-                                            <p className="text-zinc-500 font-bold text-xs opacity-70">
+                                            <p className="text-zinc-500 font-bold text-xs">
                                                 {nextInterview.jobApplication?.company}
                                             </p>
                                         </div>
 
-                                        <div className="flex items-center gap-4 mb-4 shrink-0">
+                                        <div className="flex items-center gap-4 mb-5 shrink-0">
                                             <div className="flex items-center gap-1.5 text-zinc-400">
                                                 <Calendar className="w-3.5 h-3.5 text-[#A600FF]" />
                                                 <span className="text-[11px] font-bold">
@@ -309,7 +319,7 @@ export default function DashboardPage() {
                                 <h4 className="text-[11px] font-black uppercase tracking-[0.2em] text-zinc-400 italic mb-1 leading-none">Process Funnel</h4>
                                 <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-wider opacity-60 leading-none">Success indicators</p>
                             </div>
-                            <div className="flex-1 space-y-6 overflow-y-auto scrollbar-hide pr-1 mt-3">
+                            <div className="flex-1 space-y-4 overflow-y-auto scrollbar-hide pr-1 mt-3">
                                 {statusStats.map((stat) => (
                                     <div key={stat.label} className="group/stat">
                                         <div className="flex justify-between items-end mb-2 pr-1">
