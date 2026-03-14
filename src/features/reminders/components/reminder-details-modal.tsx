@@ -94,7 +94,7 @@ export function ReminderDetailsModal({
                     
                     <div className="flex items-center gap-2 mb-2">
                          <select
-                            value={reminder.type}
+                            value={reminder.type || ''}
                             onChange={(e) => handleTypeChange(e.target.value)}
                             className="bg-white/10 text-white text-[10px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full border-none focus:ring-0 cursor-pointer hover:bg-white/20 transition-colors"
                         >

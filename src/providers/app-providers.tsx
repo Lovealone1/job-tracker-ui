@@ -1,10 +1,8 @@
-'use client';
-
-import { QueryClientProvider } from '@tanstack/react-query';
+import { NotificationProvider } from './notification-provider';
 import { ThemeProvider } from 'next-themes';
+import { QueryClientProvider } from '@tanstack/react-query';
 import { queryClient } from '@/core/query-client';
 import { ReactNode } from 'react';
-
 export function AppProviders({ children }: { children: ReactNode }) {
     return (
         <ThemeProvider
@@ -13,9 +11,11 @@ export function AppProviders({ children }: { children: ReactNode }) {
             storageKey="job-tracker-theme"
             disableTransitionOnChange
         >
-            <QueryClientProvider client={queryClient}>
-                {children}
-            </QueryClientProvider>
+            <NotificationProvider>
+                <QueryClientProvider client={queryClient}>
+                    {children}
+                </QueryClientProvider>
+            </NotificationProvider>
         </ThemeProvider>
     );
 }

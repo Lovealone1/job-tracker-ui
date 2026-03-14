@@ -103,9 +103,14 @@ function PortalDropdown<T extends string>({
             {items.map((val) => (
                 <button
                     key={val}
-                    onClick={() => onSelect(val)}
+                    onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        onSelect(val);
+                    }}
+                    type="button"
                     className={cn(
-                        'flex w-full items-center gap-2 px-3 py-2 text-xs font-medium transition-colors hover:bg-muted',
+                        'flex w-full items-center gap-2 px-3 py-2 text-xs font-medium transition-colors hover:bg-muted text-left',
                         val === currentValue && 'bg-muted'
                     )}
                 >
@@ -121,58 +126,38 @@ function PortalDropdown<T extends string>({
 
 function StatusCell({
     item,
-    isOpen,
     isUpdating,
     onToggle,
-    onSelect,
-    onClose,
 }: {
     item: JobApplication;
-    isOpen: boolean;
     isUpdating: boolean;
-    onToggle: () => void;
-    onSelect: (status: JobApplicationStatus) => void;
-    onClose: () => void;
+    onToggle: (anchor: HTMLButtonElement) => void;
 }) {
     const btnRef = useRef<HTMLButtonElement>(null);
 
     return (
-        <>
-            <button
-                ref={btnRef}
-                onClick={(e) => { e.stopPropagation(); onToggle(); }}
-                disabled={isUpdating}
-                className={cn(
-                    'flex items-center gap-2 text-xs font-bold px-2.5 py-1.5 rounded-lg transition-all cursor-pointer',
-                    'hover:ring-2 hover:ring-[#A600FF]/30 active:scale-95',
-                    statusColors[item.status],
-                    isUpdating && 'opacity-50'
-                )}
-            >
-                <div className={cn('w-2 h-2 rounded-full', statusColors[item.status].split(' ')[0])} />
-                {isUpdating ? (
-                    <span className="h-3 w-3 animate-spin rounded-full border border-current border-t-transparent" />
-                ) : (
-                    item.status.replace(/_/g, ' ')
-                )}
-            </button>
-            {isOpen && (
-                <PortalDropdown
-                    items={Object.values(JobApplicationStatus)}
-                    currentValue={item.status}
-                    onSelect={onSelect}
-                    onClose={onClose}
-                    anchorRef={btnRef}
-                    renderItem={(status, isCurrent) => (
-                        <>
-                            <div className={cn('w-2 h-2 rounded-full', statusColors[status].split(' ')[0])} />
-                            <span>{status.replace(/_/g, ' ')}</span>
-                            {isCurrent && <Check size={12} className="ml-auto text-[#A600FF]" />}
-                        </>
-                    )}
-                />
+        <button
+            ref={btnRef}
+            onClick={(e) => { 
+                e.stopPropagation(); 
+                if (btnRef.current) onToggle(btnRef.current); 
+            }}
+            disabled={isUpdating}
+            className={cn(
+                'flex items-center gap-2 text-xs font-bold px-2.5 py-1.5 rounded-lg transition-all cursor-pointer',
+                'hover:ring-2 hover:ring-[#A600FF]/30 active:scale-95 text-left',
+                statusColors[item.status],
+                isUpdating && 'opacity-50'
             )}
-        </>
+            type="button"
+        >
+            <div className={cn('w-2 h-2 rounded-full', statusColors[item.status].split(' ')[0])} />
+            {isUpdating ? (
+                <span className="h-3 w-3 animate-spin rounded-full border border-current border-t-transparent" />
+            ) : (
+                item.status.replace(/_/g, ' ')
+            )}
+        </button>
     );
 }
 
@@ -180,62 +165,39 @@ function StatusCell({
 
 function PriorityCell({
     item,
-    isOpen,
     isUpdating,
     onToggle,
-    onSelect,
-    onClose,
 }: {
     item: JobApplication;
-    isOpen: boolean;
     isUpdating: boolean;
-    onToggle: () => void;
-    onSelect: (priority: Priority) => void;
-    onClose: () => void;
+    onToggle: (anchor: HTMLButtonElement) => void;
 }) {
     const btnRef = useRef<HTMLButtonElement>(null);
     const cfg = priorityConfig[item.priority];
 
     return (
-        <>
-            <button
-                ref={btnRef}
-                onClick={(e) => { e.stopPropagation(); onToggle(); }}
-                disabled={isUpdating}
-                className={cn(
-                    'flex items-center gap-1.5 text-xs font-bold px-2.5 py-1.5 rounded-lg transition-all cursor-pointer',
-                    'hover:ring-2 hover:ring-[#A600FF]/30 active:scale-95',
-                    cfg.bg, cfg.color,
-                    isUpdating && 'opacity-50'
-                )}
-            >
-                <div className={cn('w-2 h-2 rounded-full', cfg.dot)} />
-                {isUpdating ? (
-                    <span className="h-3 w-3 animate-spin rounded-full border border-current border-t-transparent" />
-                ) : (
-                    item.priority
-                )}
-            </button>
-            {isOpen && (
-                <PortalDropdown
-                    items={Object.values(Priority)}
-                    currentValue={item.priority}
-                    onSelect={onSelect}
-                    onClose={onClose}
-                    anchorRef={btnRef}
-                    renderItem={(priority, isCurrent) => {
-                        const c = priorityConfig[priority];
-                        return (
-                            <>
-                                <div className={cn('w-2 h-2 rounded-full', c.dot)} />
-                                <span className={c.color}>{priority}</span>
-                                {isCurrent && <Check size={12} className="ml-auto text-[#A600FF]" />}
-                            </>
-                        );
-                    }}
-                />
+        <button
+            ref={btnRef}
+            onClick={(e) => { 
+                e.stopPropagation(); 
+                if (btnRef.current) onToggle(btnRef.current); 
+            }}
+            disabled={isUpdating}
+            className={cn(
+                'flex items-center gap-1.5 text-xs font-bold px-2.5 py-1.5 rounded-lg transition-all cursor-pointer text-left',
+                'hover:ring-2 hover:ring-[#A600FF]/30 active:scale-95',
+                cfg.bg, cfg.color,
+                isUpdating && 'opacity-50'
             )}
-        </>
+            type="button"
+        >
+            <div className={cn('w-2 h-2 rounded-full', cfg.dot)} />
+            {isUpdating ? (
+                <span className="h-3 w-3 animate-spin rounded-full border border-current border-t-transparent" />
+            ) : (
+                item.priority
+            )}
+        </button>
     );
 }
 
@@ -414,31 +376,19 @@ function MobileApplicationCard({
     onStatusToggle,
     onPriorityToggle,
     onLinkToggle,
-    isStatusOpen,
-    isPriorityOpen,
     statusUpdatingId,
-    priorityUpdatingId,
-    onStatusSelect,
-    onPrioritySelect,
-    onStatusClose,
-    onPriorityClose
+    priorityUpdatingId
 }: {
     item: JobApplication;
     onView?: (item: JobApplication) => void;
     onEdit?: (item: JobApplication) => void;
     onDelete?: (item: JobApplication) => void;
     onNotes?: (item: JobApplication) => void;
-    onStatusToggle: () => void;
-    onPriorityToggle: () => void;
+    onStatusToggle: (anchor: HTMLButtonElement) => void;
+    onPriorityToggle: (anchor: HTMLButtonElement) => void;
     onLinkToggle: () => void;
-    isStatusOpen: boolean;
-    isPriorityOpen: boolean;
     statusUpdatingId?: string | null;
     priorityUpdatingId?: string | null;
-    onStatusSelect: (status: JobApplicationStatus) => void;
-    onPrioritySelect: (priority: Priority) => void;
-    onStatusClose: () => void;
-    onPriorityClose: () => void;
 }) {
     return (
         <div className="bg-white/80 dark:bg-zinc-900/80 backdrop-blur-sm border border-zinc-200 dark:border-zinc-800 rounded-2xl p-4 space-y-4 shadow-sm">
@@ -462,22 +412,16 @@ function MobileApplicationCard({
                     <p className="text-[10px] font-black uppercase tracking-widest text-zinc-400">Status</p>
                     <StatusCell
                         item={item}
-                        isOpen={isStatusOpen}
                         isUpdating={statusUpdatingId === item.id}
                         onToggle={onStatusToggle}
-                        onSelect={onStatusSelect}
-                        onClose={onStatusClose}
                     />
                 </div>
                 <div className="space-y-1.5">
                     <p className="text-[10px] font-black uppercase tracking-widest text-zinc-400">Priority</p>
                     <PriorityCell
                         item={item}
-                        isOpen={isPriorityOpen}
                         isUpdating={priorityUpdatingId === item.id}
                         onToggle={onPriorityToggle}
-                        onSelect={onPrioritySelect}
-                        onClose={onPriorityClose}
                     />
                 </div>
             </div>
@@ -540,8 +484,8 @@ export function ApplicationsTableView({
     resumeVariants = [],
     onResumeVariantChange,
 }: ApplicationsTableViewProps) {
-    const [openStatusId, setOpenStatusId] = useState<string | null>(null);
-    const [openPriorityId, setOpenPriorityId] = useState<string | null>(null);
+    const [openStatus, setOpenStatus] = useState<{ id: string, item: JobApplication, anchor: React.RefObject<HTMLButtonElement> } | null>(null);
+    const [openPriority, setOpenPriority] = useState<{ id: string, item: JobApplication, anchor: React.RefObject<HTMLButtonElement> } | null>(null);
     const [linkingItem, setLinkingItem] = useState<JobApplication | null>(null);
 
     const columns: TableColumn<JobApplication>[] = [
@@ -617,17 +561,11 @@ export function ApplicationsTableView({
             render: (item) => (
                 <PriorityCell
                     item={item}
-                    isOpen={openPriorityId === item.id}
                     isUpdating={priorityUpdatingId === item.id}
-                    onToggle={() => {
-                        setOpenPriorityId(openPriorityId === item.id ? null : item.id);
-                        setOpenStatusId(null);
+                    onToggle={(anchor) => {
+                        setOpenPriority({ id: item.id, item, anchor: { current: anchor } });
+                        setOpenStatus(null);
                     }}
-                    onSelect={(priority) => {
-                        onPriorityChange?.(item.id, priority);
-                        setOpenPriorityId(null);
-                    }}
-                    onClose={() => setOpenPriorityId(null)}
                 />
             ),
         },
@@ -638,17 +576,11 @@ export function ApplicationsTableView({
             render: (item) => (
                 <StatusCell
                     item={item}
-                    isOpen={openStatusId === item.id}
                     isUpdating={statusUpdatingId === item.id}
-                    onToggle={() => {
-                        setOpenStatusId(openStatusId === item.id ? null : item.id);
-                        setOpenPriorityId(null);
+                    onToggle={(anchor) => {
+                        setOpenStatus({ id: item.id, item, anchor: { current: anchor } });
+                        setOpenPriority(null);
                     }}
-                    onSelect={(status) => {
-                        onStatusChange?.(item.id, status);
-                        setOpenStatusId(null);
-                    }}
-                    onClose={() => setOpenStatusId(null)}
                 />
             ),
         },
@@ -722,29 +654,17 @@ export function ApplicationsTableView({
                                     onEdit={onEdit}
                                     onDelete={onDelete}
                                     onNotes={onNotes}
-                                    onStatusToggle={() => {
-                                        setOpenStatusId(openStatusId === item.id ? null : item.id);
-                                        setOpenPriorityId(null);
+                                    onStatusToggle={(anchor) => {
+                                        setOpenStatus({ id: item.id, item, anchor: { current: anchor } });
+                                        setOpenPriority(null);
                                     }}
-                                    onPriorityToggle={() => {
-                                        setOpenPriorityId(openPriorityId === item.id ? null : item.id);
-                                        setOpenStatusId(null);
+                                    onPriorityToggle={(anchor) => {
+                                        setOpenPriority({ id: item.id, item, anchor: { current: anchor } });
+                                        setOpenStatus(null);
                                     }}
                                     onLinkToggle={() => setLinkingItem(item)}
-                                    isStatusOpen={openStatusId === item.id}
-                                    isPriorityOpen={openPriorityId === item.id}
                                     statusUpdatingId={statusUpdatingId}
                                     priorityUpdatingId={priorityUpdatingId}
-                                    onStatusSelect={(status) => {
-                                        onStatusChange?.(item.id, status);
-                                        setOpenStatusId(null);
-                                    }}
-                                    onPrioritySelect={(priority) => {
-                                        onPriorityChange?.(item.id, priority);
-                                        setOpenPriorityId(null);
-                                    }}
-                                    onStatusClose={() => setOpenStatusId(null)}
-                                    onPriorityClose={() => setOpenPriorityId(null)}
                                 />
                             ))}
                         </div>
@@ -785,6 +705,50 @@ export function ApplicationsTableView({
                 variants={resumeVariants}
                 applicationTitle={linkingItem?.title || ''}
             />
+
+            {/* Global Portals for Status and Priority */}
+            {openStatus && (
+                <PortalDropdown
+                    items={Object.values(JobApplicationStatus)}
+                    currentValue={openStatus.item.status}
+                    onSelect={(status) => {
+                        onStatusChange?.(openStatus.id, status);
+                        setOpenStatus(null);
+                    }}
+                    onClose={() => setOpenStatus(null)}
+                    anchorRef={openStatus.anchor}
+                    renderItem={(status, isCurrent) => (
+                        <>
+                            <div className={cn('w-2 h-2 rounded-full', statusColors[status].split(' ')[0])} />
+                            <span>{status.replace(/_/g, ' ')}</span>
+                            {isCurrent && <Check size={12} className="ml-auto text-[#A600FF]" />}
+                        </>
+                    )}
+                />
+            )}
+
+            {openPriority && (
+                <PortalDropdown
+                    items={Object.values(Priority)}
+                    currentValue={openPriority.item.priority}
+                    onSelect={(priority) => {
+                        onPriorityChange?.(openPriority.id, priority);
+                        setOpenPriority(null);
+                    }}
+                    onClose={() => setOpenPriority(null)}
+                    anchorRef={openPriority.anchor}
+                    renderItem={(priority, isCurrent) => {
+                        const c = priorityConfig[priority];
+                        return (
+                            <>
+                                <div className={cn('w-2 h-2 rounded-full', c.dot)} />
+                                <span className={c.color}>{priority}</span>
+                                {isCurrent && <Check size={12} className="ml-auto text-[#A600FF]" />}
+                            </>
+                        );
+                    }}
+                />
+            )}
         </>
     );
 }

@@ -70,7 +70,7 @@ export function CrudFormDialog({
     const isEdit = !!initialData;
 
     const renderField = (field: FormField) => {
-        const value = formData[field.name] !== undefined ? formData[field.name] : '';
+        const value = formData[field.name] !== undefined && formData[field.name] !== null ? formData[field.name] : '';
         const error = errors[field.name];
 
         const baseInputClasses = cn(
