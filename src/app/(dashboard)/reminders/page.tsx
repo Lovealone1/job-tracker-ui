@@ -18,7 +18,7 @@ export default function RemindersPage() {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
     const [filters, setFilters] = useState<FilterState>({ type: 'all' });
-    
+
     const { createReminder } = useReminderMutations();
     const { data: interviewsData, isLoading: interviewsLoading } = useInterviews({ limit: 100 });
 
@@ -48,9 +48,9 @@ export default function RemindersPage() {
     }, [filters.type]);
 
     return (
-        <div className="flex flex-col h-[calc(100vh-72px)] overflow-hidden bg-gradient-to-br from-white via-zinc-50 to-[#A600FF]/5 dark:from-zinc-950 dark:via-zinc-950 dark:to-[#A600FF]/10 select-none">
+        <div className="flex flex-col h-full overflow-hidden bg-white dark:bg-zinc-950 select-none">
             {/* Unified Header Section */}
-            <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 px-8 pt-2 pb-4 bg-white/40 dark:bg-zinc-950/20 backdrop-blur-md">
+            <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 px-4 md:px-8 pt-4 md:pt-2 pb-6 md:pb-4 bg-white/40 dark:bg-zinc-950/20 backdrop-blur-md border-b border-zinc-200 dark:border-zinc-800">
                 <div className="space-y-4">
                     <div className="flex items-center gap-4">
                         <div className="p-2.5 bg-[#A600FF] shadow-lg shadow-[#A600FF]/25 rounded-2xl">
@@ -69,40 +69,48 @@ export default function RemindersPage() {
 
                     {!isListView && (
                         <div className="flex items-center gap-2">
-                            <button 
+                            <button
                                 onClick={prevMonth}
                                 className="p-2 text-zinc-500 hover:text-[#A600FF] bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl transition-all hover:bg-zinc-50 active:scale-95 shadow-sm"
                             >
                                 <ChevronLeft className="w-5 h-5" />
                             </button>
-                            <button 
+                            <button
                                 onClick={goToToday}
                                 className="px-6 py-2 text-[10px] font-black text-zinc-700 dark:text-zinc-300 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl hover:bg-zinc-50 hover:text-[#A600FF] transition-all active:scale-95 shadow-sm"
                             >
                                 Today
                             </button>
-                            <button 
+                            <button
                                 onClick={nextMonth}
                                 className="p-2 text-zinc-500 hover:text-[#A600FF] bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl transition-all hover:bg-zinc-50 active:scale-95 shadow-sm"
                             >
                                 <ChevronRight className="w-5 h-5" />
                             </button>
+
+                            <button
+                                onClick={() => openModal()}
+                                className="flex items-center justify-center gap-2 px-13 py-3 bg-[#A600FF] hover:bg-[#8B00D6] text-white rounded-2xl text-[10px] font-black shadow-lg shadow-[#A600FF]/25 transition-all hover:-translate-y-0.5 active:translate-y-0 text-nowrap uppercase tracking-widest ml-2"
+                            >
+                                <Plus className="w-4 h-4" />
+                                Create
+                            </button>
                         </div>
                     )}
                 </div>
 
-                <div className="flex items-center gap-4 pb-2">
+                <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 pb-2">
                     {!showFilters ? (
-                        <button 
+                        <button
                             onClick={() => setShowFilters(true)}
-                            className="flex items-center gap-2 px-6 py-3 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-zinc-700 dark:text-zinc-300 rounded-2xl text-[10px] font-black shadow-xl transition-all active:scale-95 text-nowrap uppercase tracking-widest hover:bg-[#A600FF]/5 hover:text-[#A600FF] dark:hover:bg-[#A600FF]/10 active:translate-y-0"
+                            className="flex items-center justify-center gap-2 px-6 py-3 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-zinc-700 dark:text-zinc-300 rounded-2xl text-[10px] font-black shadow-xl transition-all active:scale-95 text-nowrap uppercase tracking-widest hover:bg-[#A600FF]/5 hover:text-[#A600FF] dark:hover:bg-[#A600FF]/10 active:translate-y-0"
                         >
                             <Filter className="w-4 h-4" />
                             Advanced Filters
                         </button>
                     ) : (
-                        <div className="animate-in slide-in-from-right-4 fade-in duration-300">
-                            <ReminderFilters 
+                        <div className="animate-in slide-in-from-right-4 fade-in duration-300 flex-1 sm:flex-none">
+                            <ReminderFilters
                                 filters={filters}
                                 onChange={setFilters}
                                 onClear={() => {
@@ -113,25 +121,17 @@ export default function RemindersPage() {
                             />
                         </div>
                     )}
-
-                    <button 
-                        onClick={() => openModal()}
-                        className="flex items-center gap-2 px-6 py-3 bg-[#A600FF] hover:bg-[#8B00D6] text-white rounded-2xl text-[10px] font-black shadow-2xl shadow-[#A600FF]/40 transition-all hover:-translate-y-1 active:translate-y-0 text-nowrap uppercase tracking-widest"
-                    >
-                        <Plus className="w-5 h-5" />
-                        Create
-                    </button>
                 </div>
             </div>
 
             {/* Main View Area */}
-            <div className="flex-1 overflow-hidden px-8 pb-8 pt-0 flex flex-col">
-                <div className="flex-1 overflow-hidden border border-zinc-200 dark:border-zinc-800 rounded-[2.5rem] shadow-2xl bg-white/50 dark:bg-zinc-950/20 backdrop-blur-3xl flex flex-col">
+            <div className="flex-1 overflow-hidden p-4 md:px-8 md:pb-8 md:pt-0 flex flex-col">
+                <div className="flex-1 overflow-hidden border border-zinc-200 dark:border-zinc-800 rounded-[1.5rem] md:rounded-[2.5rem] shadow-2xl bg-white/50 dark:bg-zinc-950/20 backdrop-blur-3xl flex flex-col">
                     {isListView ? (
                         <ReminderListView filters={filters} />
                     ) : (
-                        <ReminderCalendar 
-                            currentMonth={currentMonth} 
+                        <ReminderCalendar
+                            currentMonth={currentMonth}
                             className="flex-1 border-none"
                             onAddReminder={openModal}
                         />
