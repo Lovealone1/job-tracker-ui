@@ -8,6 +8,7 @@ import { cn } from '@/lib/utils';
 import { fromCOWallClock, toCOWallClockISO } from '@/lib/date-utils';
 import { useReminderMutations } from '../hooks/use-reminder-mutations';
 import { useReminder } from '../hooks/use-reminders';
+import { CrudConfirmDialog } from '@/components/shared/crud-confirm-dialog';
 
 interface ReminderDetailsModalProps {
     isOpen: boolean;
@@ -27,11 +28,12 @@ export function ReminderDetailsModal({
     reminderId,
     onDeleted
 }: ReminderDetailsModalProps) {
-    const { data: reminder, isLoading: isFetching } = useReminder(reminderId);
-    const { updateStatus, updateType, rescheduleReminder, deleteReminder } = useReminderMutations();
+    const { data: reminder, isLoading: isFetching } = useReminder(reminderId, isOpen);
+    const { statusMutation, typeMutation, rescheduleMutation, deleteReminder } = useReminderMutations();
     const [isDeleting, setIsDeleting] = useState(false);
     const [isRescheduling, setIsRescheduling] = useState(false);
     const [newDueDate, setNewDueDate] = useState('');
+    const [showConfirmDelete, setShowConfirmDelete] = useState(false);
 
     if (!isOpen) return null;
 
@@ -49,7 +51,6 @@ export function ReminderDetailsModal({
     if (!reminder) return null;
 
     const handleDelete = async () => {
-        if (!confirm('Are you sure you want to delete this reminder?')) return;
         setIsDeleting(true);
         try {
             await deleteReminder.mutateAsync(reminder.id);
@@ -57,23 +58,24 @@ export function ReminderDetailsModal({
             onClose();
         } finally {
             setIsDeleting(false);
+            setShowConfirmDelete(false);
         }
     };
 
     const handleStatusToggle = async () => {
         const nextStatus = reminder.status === ReminderStatus.COMPLETED ? ReminderStatus.PENDING : ReminderStatus.COMPLETED;
-        await updateStatus.mutateAsync({ id: reminder.id, status: nextStatus });
+        await statusMutation.mutateAsync({ id: reminder.id, status: nextStatus });
     };
 
     const handleTypeChange = async (type: string) => {
-        await updateType.mutateAsync({ id: reminder.id, type: type as ReminderType });
+        await typeMutation.mutateAsync({ id: reminder.id, type: type as ReminderType });
     };
 
     const handleReschedule = async () => {
         if (!newDueDate) return;
         const date = new Date(newDueDate);
         if (!isNaN(date.getTime())) {
-            await rescheduleReminder.mutateAsync({ id: reminder.id, dueAt: toCOWallClockISO(date) });
+            await rescheduleMutation.mutateAsync({ id: reminder.id, dueAt: toCOWallClockISO(date) });
             setIsRescheduling(false);
         }
     };
@@ -230,7 +232,7 @@ export function ReminderDetailsModal({
                         </button>
                         
                         <button 
-                            onClick={handleDelete}
+                            onClick={() => setShowConfirmDelete(true)}
                             disabled={isDeleting}
                             className="p-3 rounded-2xl bg-zinc-50 dark:bg-zinc-800/50 border border-zinc-200 dark:border-zinc-800 text-zinc-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 transition-all active:scale-95"
                         >
@@ -239,6 +241,17 @@ export function ReminderDetailsModal({
                     </div>
                 </div>
             </div>
+
+            <CrudConfirmDialog
+                isOpen={showConfirmDelete}
+                onClose={() => setShowConfirmDelete(false)}
+                onConfirm={handleDelete}
+                title="Delete Reminder"
+                description={`Are you sure you want to delete "${reminder.title}"? This action cannot be undone.`}
+                confirmText="Delete"
+                isDestructive={true}
+                isLoading={isDeleting}
+            />
         </div>
     );
 }

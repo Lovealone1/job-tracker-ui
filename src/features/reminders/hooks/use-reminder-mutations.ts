@@ -68,7 +68,9 @@ export function useReminderMutations() {
 
     const deleteMutation = useMutation({
         mutationFn: (id: string) => reminderService.delete(id),
-        onSuccess: () => {
+        onSuccess: (_, deletedId) => {
+            // Remove specific detail query from cache immediately to avoid 404 re-fetches
+            queryClient.removeQueries({ queryKey: REMINDERS_KEYS.detail(deletedId) });
             invalidateAll();
             showSuccess('Reminder deleted successfully');
         },
@@ -78,9 +80,9 @@ export function useReminderMutations() {
     return {
         createReminder: createMutation,
         updateReminder: updateMutation,
-        updateStatus: updateStatusMutation,
-        updateType: updateTypeMutation,
-        rescheduleReminder: rescheduleMutation,
+        statusMutation: updateStatusMutation,
+        typeMutation: updateTypeMutation,
+        rescheduleMutation,
         deleteReminder: deleteMutation,
     };
 }
