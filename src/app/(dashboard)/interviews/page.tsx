@@ -53,9 +53,9 @@ export default function InterviewsPage() {
     const {
         createInterview,
         updateInterview,
-        updateStatus,
-        updateNotes,
-        updateFeedback,
+        statusMutation,
+        notesMutation,
+        feedbackMutation,
         rescheduleInterview,
         deleteInterview,
     } = useInterviewMutations();
@@ -74,7 +74,7 @@ export default function InterviewsPage() {
     const handleStatusChange = async (id: string, status: InterviewStatus) => {
         setStatusUpdatingId(id);
         try {
-            await updateStatus.mutateAsync({ id, status });
+            await statusMutation.mutateAsync({ id, status });
         } finally {
             setStatusUpdatingId(null);
         }
@@ -82,14 +82,14 @@ export default function InterviewsPage() {
 
     const handleSaveNotes = async (notes: string) => {
         if (notesItem) {
-            await updateNotes.mutateAsync({ id: notesItem.id, notes });
+            await notesMutation.mutateAsync({ id: notesItem.id, notes });
             setNotesItem(null);
         }
     };
 
     const handleSaveFeedback = async (feedback: string) => {
         if (feedbackItem) {
-            await updateFeedback.mutateAsync({ id: feedbackItem.id, feedback });
+            await feedbackMutation.mutateAsync({ id: feedbackItem.id, feedback });
             setFeedbackItem(null);
         }
     };
@@ -261,7 +261,7 @@ export default function InterviewsPage() {
                     label={notesItem ? `Notes for ${notesItem.jobApplication?.title || 'Interview'}` : ''}
                     initialValue={notesItem?.notes || ''}
                     onSave={handleSaveNotes}
-                    isLoading={updateNotes.isPending}
+                    isLoading={notesMutation.isPending}
                 />
 
                 {/* Feedback Modal */}
@@ -272,7 +272,7 @@ export default function InterviewsPage() {
                     label={feedbackItem ? `Feedback for ${feedbackItem.jobApplication?.title || 'Interview'}` : ''}
                     initialValue={feedbackItem?.feedback || ''}
                     onSave={handleSaveFeedback}
-                    isLoading={updateFeedback.isPending}
+                    isLoading={feedbackMutation.isPending}
                 />
 
                 {/* Reschedule Modal */}

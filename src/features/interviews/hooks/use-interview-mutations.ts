@@ -36,7 +36,7 @@ export function useInterviewMutations() {
         onError: () => showError('Failed to update interview'),
     });
 
-    const updateStatusMutation = useMutation({
+    const statusMutation = useMutation({
         mutationFn: ({ id, status }: { id: string; status: InterviewStatus }) =>
             interviewService.updateStatus(id, status),
         onSuccess: () => {
@@ -46,7 +46,7 @@ export function useInterviewMutations() {
         onError: () => showError('Failed to update interview status'),
     });
 
-    const updateNotesMutation = useMutation({
+    const notesMutation = useMutation({
         mutationFn: ({ id, notes }: { id: string; notes: string }) =>
             interviewService.updateNotes(id, notes),
         onSuccess: () => {
@@ -56,7 +56,7 @@ export function useInterviewMutations() {
         onError: () => showError('Failed to save interview notes'),
     });
 
-    const updateFeedbackMutation = useMutation({
+    const feedbackMutation = useMutation({
         mutationFn: ({ id, feedback }: { id: string; feedback: string }) =>
             interviewService.updateFeedback(id, feedback),
         onSuccess: () => {
@@ -88,9 +88,9 @@ export function useInterviewMutations() {
     return {
         createInterview: createMutation,
         updateInterview: updateMutation,
-        updateStatus: updateStatusMutation,
-        updateNotes: updateNotesMutation,
-        updateFeedback: updateFeedbackMutation,
+        statusMutation,
+        notesMutation,
+        feedbackMutation,
         rescheduleInterview: rescheduleMutation,
         deleteInterview: deleteMutation,
     };

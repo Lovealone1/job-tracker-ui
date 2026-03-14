@@ -37,14 +37,35 @@ interface ApplicationsTableViewProps {
     resumeVariants?: { id: string; title: string }[];
 }
 
-const statusColors: Record<JobApplicationStatus, string> = {
-    [JobApplicationStatus.SAVED]: 'bg-zinc-100 text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400',
-    [JobApplicationStatus.APPLIED]: 'bg-blue-100 text-blue-600 dark:bg-blue-900/20 dark:text-blue-400',
-    [JobApplicationStatus.INTERVIEWING]: 'bg-purple-100 text-purple-600 dark:bg-purple-900/20 dark:text-purple-400',
-    [JobApplicationStatus.OFFER_RECEIVED]: 'bg-green-100 text-green-600 dark:bg-green-900/20 dark:text-green-400',
-    [JobApplicationStatus.REJECTED]: 'bg-red-100 text-red-600 dark:bg-red-900/20 dark:text-red-400',
-    [JobApplicationStatus.WITHDRAWN]: 'bg-orange-100 text-orange-600 dark:bg-orange-900/20 dark:text-orange-400',
-    [JobApplicationStatus.GHOSTED]: 'bg-zinc-300 text-zinc-700 dark:bg-zinc-700 dark:text-zinc-300',
+const statusConfig: Record<JobApplicationStatus, { badge: string; dot: string }> = {
+    [JobApplicationStatus.SAVED]: { 
+        badge: 'bg-zinc-100 text-zinc-600 border-zinc-200 dark:bg-zinc-800/50 dark:text-zinc-400 dark:border-zinc-700', 
+        dot: 'bg-zinc-400' 
+    },
+    [JobApplicationStatus.APPLIED]: { 
+        badge: 'bg-blue-50 text-blue-600 border-blue-100 dark:bg-blue-900/10 dark:text-blue-400 dark:border-blue-800/50', 
+        dot: 'bg-blue-500' 
+    },
+    [JobApplicationStatus.INTERVIEWING]: { 
+        badge: 'bg-purple-50 text-purple-600 border-purple-100 dark:bg-purple-900/10 dark:text-purple-400 dark:border-purple-800/50', 
+        dot: 'bg-purple-500' 
+    },
+    [JobApplicationStatus.OFFER_RECEIVED]: { 
+        badge: 'bg-green-50 text-green-700 border-green-100 dark:bg-green-900/10 dark:text-green-400 dark:border-green-800/50', 
+        dot: 'bg-green-500' 
+    },
+    [JobApplicationStatus.REJECTED]: { 
+        badge: 'bg-red-50 text-red-600 border-red-100 dark:bg-red-900/10 dark:text-red-400 dark:border-red-800/50', 
+        dot: 'bg-red-500' 
+    },
+    [JobApplicationStatus.WITHDRAWN]: { 
+        badge: 'bg-orange-50 text-orange-600 border-orange-100 dark:bg-orange-900/10 dark:text-orange-400 dark:border-orange-800/50', 
+        dot: 'bg-orange-500' 
+    },
+    [JobApplicationStatus.GHOSTED]: { 
+        badge: 'bg-zinc-200 text-zinc-700 border-zinc-300 dark:bg-zinc-700 dark:text-zinc-300', 
+        dot: 'bg-zinc-500' 
+    },
 };
 
 const priorityConfig: Record<Priority, { color: string; dot: string; bg: string }> = {
@@ -98,7 +119,7 @@ function PortalDropdown<T extends string>({
         <div
             ref={ref}
             style={{ top: pos.top, left: pos.left }}
-            className="fixed z-[9999] min-w-[150px] rounded-xl border border-border bg-card shadow-2xl py-1"
+            className="fixed z-[9999] min-w-[150px] rounded-xl border border-border bg-card shadow-2xl py-1 overflow-hidden"
         >
             {items.map((val) => (
                 <button
@@ -134,6 +155,7 @@ function StatusCell({
     onToggle: (anchor: HTMLButtonElement) => void;
 }) {
     const btnRef = useRef<HTMLButtonElement>(null);
+    const cfg = statusConfig[item.status];
 
     return (
         <button
@@ -144,14 +166,14 @@ function StatusCell({
             }}
             disabled={isUpdating}
             className={cn(
-                'flex items-center gap-2 text-xs font-bold px-2.5 py-1.5 rounded-lg transition-all cursor-pointer',
-                'hover:ring-2 hover:ring-[#A600FF]/30 active:scale-95 text-left',
-                statusColors[item.status],
+                'flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest px-2.5 py-1 rounded-full transition-all cursor-pointer text-left border border-transparent shadow-sm',
+                'hover:ring-2 hover:ring-[#A600FF]/30 active:scale-95',
+                cfg.badge,
                 isUpdating && 'opacity-50'
             )}
             type="button"
         >
-            <div className={cn('w-2 h-2 rounded-full', statusColors[item.status].split(' ')[0])} />
+            <div className={cn('w-2 h-2 rounded-full ring-2 ring-white/50 dark:ring-black/20 shadow-sm', cfg.dot)} />
             {isUpdating ? (
                 <span className="h-3 w-3 animate-spin rounded-full border border-current border-t-transparent" />
             ) : (
@@ -184,14 +206,14 @@ function PriorityCell({
             }}
             disabled={isUpdating}
             className={cn(
-                'flex items-center gap-1.5 text-xs font-bold px-2.5 py-1.5 rounded-lg transition-all cursor-pointer text-left',
+                'flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest px-2.5 py-1 rounded-full transition-all cursor-pointer text-left border border-transparent shadow-sm',
                 'hover:ring-2 hover:ring-[#A600FF]/30 active:scale-95',
                 cfg.bg, cfg.color,
                 isUpdating && 'opacity-50'
             )}
             type="button"
         >
-            <div className={cn('w-2 h-2 rounded-full', cfg.dot)} />
+            <div className={cn('w-2 h-2 rounded-full ring-2 ring-white/50 dark:ring-black/20 shadow-sm', cfg.dot)} />
             {isUpdating ? (
                 <span className="h-3 w-3 animate-spin rounded-full border border-current border-t-transparent" />
             ) : (
@@ -717,13 +739,16 @@ export function ApplicationsTableView({
                     }}
                     onClose={() => setOpenStatus(null)}
                     anchorRef={openStatus.anchor}
-                    renderItem={(status, isCurrent) => (
-                        <>
-                            <div className={cn('w-2 h-2 rounded-full', statusColors[status].split(' ')[0])} />
-                            <span>{status.replace(/_/g, ' ')}</span>
-                            {isCurrent && <Check size={12} className="ml-auto text-[#A600FF]" />}
-                        </>
-                    )}
+                    renderItem={(status, isCurrent) => {
+                        const cfg = statusConfig[status];
+                        return (
+                            <>
+                                <div className={cn('w-2 h-2 rounded-full ring-1 ring-black/5', cfg.dot)} />
+                                <span>{status.replace(/_/g, ' ')}</span>
+                                {isCurrent && <Check size={12} className="ml-auto text-[#A600FF]" />}
+                            </>
+                        );
+                    }}
                 />
             )}
 

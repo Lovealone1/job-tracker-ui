@@ -34,12 +34,27 @@ interface InterviewsTableViewProps {
     statusUpdatingId?: string | null;
 }
 
-const statusColors: Record<InterviewStatus, string> = {
-    [InterviewStatus.SCHEDULED]: 'bg-blue-100 text-blue-600 dark:bg-blue-900/20 dark:text-blue-400',
-    [InterviewStatus.COMPLETED]: 'bg-green-100 text-green-600 dark:bg-green-900/20 dark:text-green-400',
-    [InterviewStatus.CANCELED]: 'bg-red-100 text-red-600 dark:bg-red-900/20 dark:text-red-400',
-    [InterviewStatus.RESCHEDULED]: 'bg-orange-100 text-orange-600 dark:bg-orange-900/20 dark:text-orange-400',
-    [InterviewStatus.NO_SHOW]: 'bg-zinc-300 text-zinc-700 dark:bg-zinc-700 dark:text-zinc-300',
+const statusConfig: Record<InterviewStatus, { badge: string; dot: string }> = {
+    [InterviewStatus.SCHEDULED]: { 
+        badge: 'bg-blue-50 text-blue-600 border-blue-100 dark:bg-blue-900/10 dark:text-blue-400 dark:border-blue-800/50', 
+        dot: 'bg-blue-500' 
+    },
+    [InterviewStatus.COMPLETED]: { 
+        badge: 'bg-green-50 text-green-700 border-green-100 dark:bg-green-900/10 dark:text-green-400 dark:border-green-800/50', 
+        dot: 'bg-green-500' 
+    },
+    [InterviewStatus.CANCELED]: { 
+        badge: 'bg-red-50 text-red-600 border-red-100 dark:bg-red-900/10 dark:text-red-400 dark:border-red-800/50', 
+        dot: 'bg-red-500' 
+    },
+    [InterviewStatus.RESCHEDULED]: { 
+        badge: 'bg-orange-50 text-orange-600 border-orange-100 dark:bg-orange-900/10 dark:text-orange-400 dark:border-orange-800/50', 
+        dot: 'bg-orange-500' 
+    },
+    [InterviewStatus.NO_SHOW]: { 
+        badge: 'bg-zinc-100 text-zinc-600 border-zinc-200 dark:bg-zinc-800/50 dark:text-zinc-400 dark:border-zinc-700', 
+        dot: 'bg-zinc-400' 
+    },
 };
 
 const typeColors: Record<InterviewType, string> = {
@@ -67,25 +82,28 @@ function PortalDropdown<T extends string>({
     currentValue: T;
     onSelect: (val: T) => void;
     onClose: () => void;
-    anchorRef: React.RefObject<HTMLButtonElement | null>;
+    anchorRef: React.RefObject<HTMLElement | null>;
     renderItem: (val: T, isCurrent: boolean) => React.ReactNode;
 }) {
     const ref = useRef<HTMLDivElement>(null);
-    const [pos, setPos] = useState({ top: 0, left: 0 });
+    const [pos, setPos] = useState({ top: 0, left: 0, width: 0 });
 
     useEffect(() => {
         if (anchorRef.current) {
             const rect = anchorRef.current.getBoundingClientRect();
-            setPos({ top: rect.bottom + 4, left: rect.left });
+            // Add window scroll to positions
+            setPos({ 
+                top: rect.bottom + window.scrollY + 4, 
+                left: rect.left + window.scrollX,
+                width: Math.max(rect.width, 160)
+            });
         }
     }, [anchorRef]);
 
     useEffect(() => {
         function handleClickOutside(e: MouseEvent) {
-            if (
-                ref.current && !ref.current.contains(e.target as Node) &&
-                anchorRef.current && !anchorRef.current.contains(e.target as Node)
-            ) {
+            if (ref.current && !ref.current.contains(e.target as Node) &&
+                anchorRef.current && !anchorRef.current.contains(e.target as Node)) {
                 onClose();
             }
         }
@@ -96,16 +114,25 @@ function PortalDropdown<T extends string>({
     return createPortal(
         <div
             ref={ref}
-            style={{ top: pos.top, left: pos.left }}
-            className="fixed z-[9999] min-w-[150px] rounded-xl border border-border bg-card shadow-2xl py-1"
+            style={{ 
+                top: pos.top, 
+                left: pos.left,
+                minWidth: pos.width
+            }}
+            className="fixed z-[9999] rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 shadow-2xl py-1 overflow-hidden"
         >
             {items.map((val) => (
                 <button
                     key={val}
-                    onClick={() => onSelect(val)}
+                    type="button"
+                    onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        onSelect(val);
+                    }}
                     className={cn(
-                        'flex w-full items-center gap-2 px-3 py-2 text-xs font-medium transition-colors hover:bg-muted',
-                        val === currentValue && 'bg-muted'
+                        'flex w-full items-center gap-3 px-3 py-2.5 text-xs font-bold transition-colors hover:bg-zinc-100 dark:hover:bg-zinc-800 text-left',
+                        val === currentValue ? 'text-[#A600FF] bg-[#A600FF]/5' : 'text-zinc-600 dark:text-zinc-400'
                     )}
                 >
                     {renderItem(val, val === currentValue)}
@@ -120,58 +147,39 @@ function PortalDropdown<T extends string>({
 
 function StatusCell({
     item,
-    isOpen,
     isUpdating,
     onToggle,
-    onSelect,
-    onClose,
 }: {
     item: InterviewSummary;
-    isOpen: boolean;
     isUpdating: boolean;
-    onToggle: () => void;
-    onSelect: (status: InterviewStatus) => void;
-    onClose: () => void;
+    onToggle: (anchor: HTMLElement) => void;
 }) {
     const btnRef = useRef<HTMLButtonElement>(null);
+    const cfg = statusConfig[item.status];
 
     return (
-        <>
-            <button
-                ref={btnRef}
-                onClick={(e) => { e.stopPropagation(); onToggle(); }}
-                disabled={isUpdating}
-                className={cn(
-                    'flex items-center gap-2 text-xs font-bold px-2.5 py-1.5 rounded-lg transition-all cursor-pointer',
-                    'hover:ring-2 hover:ring-[#A600FF]/30 active:scale-95',
-                    statusColors[item.status],
-                    isUpdating && 'opacity-50'
-                )}
-            >
-                <div className={cn('w-2 h-2 rounded-full', statusColors[item.status].split(' ')[0])} />
-                {isUpdating ? (
-                    <span className="h-3 w-3 animate-spin rounded-full border border-current border-t-transparent" />
-                ) : (
-                    item.status.replace(/_/g, ' ')
-                )}
-            </button>
-            {isOpen && (
-                <PortalDropdown
-                    items={Object.values(InterviewStatus)}
-                    currentValue={item.status}
-                    onSelect={onSelect}
-                    onClose={onClose}
-                    anchorRef={btnRef}
-                    renderItem={(status, isCurrent) => (
-                        <>
-                            <div className={cn('w-2 h-2 rounded-full', statusColors[status].split(' ')[0])} />
-                            <span>{status.replace(/_/g, ' ')}</span>
-                            {isCurrent && <Check size={12} className="ml-auto text-[#A600FF]" />}
-                        </>
-                    )}
-                />
+        <button
+            ref={btnRef}
+            onClick={(e) => { 
+                e.preventDefault();
+                e.stopPropagation(); 
+                if (btnRef.current) onToggle(btnRef.current); 
+            }}
+            disabled={isUpdating}
+            className={cn(
+                'flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest px-2.5 py-1 rounded-full transition-all cursor-pointer border border-transparent shadow-sm',
+                'hover:ring-2 hover:ring-[#A600FF]/30 active:scale-95',
+                cfg.badge,
+                isUpdating && 'opacity-50'
             )}
-        </>
+        >
+            <div className={cn('w-2 h-2 rounded-full ring-2 ring-white/50 dark:ring-black/20 shadow-sm', cfg.dot)} />
+            {isUpdating ? (
+                <span className="h-3 w-3 animate-spin rounded-full border border-current border-t-transparent" />
+            ) : (
+                item.status.replace(/_/g, ' ')
+            )}
+        </button>
     );
 }
 
@@ -186,10 +194,7 @@ function MobileInterviewCard({
     onFeedback,
     onReschedule,
     onStatusToggle,
-    isStatusOpen,
     statusUpdatingId,
-    onStatusSelect,
-    onStatusClose
 }: {
     item: InterviewSummary;
     onView?: (item: InterviewSummary) => void;
@@ -198,11 +203,8 @@ function MobileInterviewCard({
     onNotes?: (item: InterviewSummary) => void;
     onFeedback?: (item: InterviewSummary) => void;
     onReschedule?: (item: InterviewSummary) => void;
-    onStatusToggle: () => void;
-    isStatusOpen: boolean;
+    onStatusToggle: (anchor: HTMLElement) => void;
     statusUpdatingId?: string | null;
-    onStatusSelect: (status: InterviewStatus) => void;
-    onStatusClose: () => void;
 }) {
     return (
         <div className="bg-white/80 dark:bg-zinc-900/80 backdrop-blur-sm border border-zinc-200 dark:border-zinc-800 rounded-2xl p-4 space-y-4 shadow-sm">
@@ -239,11 +241,8 @@ function MobileInterviewCard({
                     <p className="text-[10px] font-black uppercase tracking-widest text-zinc-400">Status</p>
                     <StatusCell
                         item={item}
-                        isOpen={isStatusOpen}
                         isUpdating={statusUpdatingId === item.id}
-                        onToggle={onStatusToggle}
-                        onSelect={onStatusSelect}
-                        onClose={onStatusClose}
+                        onToggle={(anchor) => onStatusToggle(anchor)}
                     />
                 </div>
             </div>
@@ -303,7 +302,14 @@ export function InterviewsTableView({
     onStatusChange,
     statusUpdatingId,
 }: InterviewsTableViewProps) {
-    const [openStatusId, setOpenStatusId] = useState<string | null>(null);
+    const [openStatus, setOpenStatus] = useState<{ id: string; anchor: HTMLElement; item: InterviewSummary } | null>(null);
+    const anchorRef = useRef<HTMLElement | null>(null);
+
+    useEffect(() => {
+        if (openStatus) {
+            anchorRef.current = openStatus.anchor;
+        }
+    }, [openStatus]);
 
     const columns: TableColumn<InterviewSummary>[] = [
         {
@@ -340,14 +346,8 @@ export function InterviewsTableView({
             render: (item) => (
                 <StatusCell
                     item={item}
-                    isOpen={openStatusId === item.id}
                     isUpdating={statusUpdatingId === item.id}
-                    onToggle={() => setOpenStatusId(openStatusId === item.id ? null : item.id)}
-                    onSelect={(status) => {
-                        onStatusChange?.(item.id, status);
-                        setOpenStatusId(null);
-                    }}
-                    onClose={() => setOpenStatusId(null)}
+                    onToggle={(anchor) => setOpenStatus({ id: item.id, anchor, item })}
                 />
             ),
         },
@@ -441,14 +441,8 @@ export function InterviewsTableView({
                                     onNotes={onNotes}
                                     onFeedback={onFeedback}
                                     onReschedule={onReschedule}
-                                    onStatusToggle={() => setOpenStatusId(openStatusId === item.id ? null : item.id)}
-                                    isStatusOpen={openStatusId === item.id}
+                                    onStatusToggle={(anchor) => setOpenStatus({ id: item.id, anchor, item })}
                                     statusUpdatingId={statusUpdatingId}
-                                    onStatusSelect={(status) => {
-                                        onStatusChange?.(item.id, status);
-                                        setOpenStatusId(null);
-                                    }}
-                                    onStatusClose={() => setOpenStatusId(null)}
                                 />
                             ))}
                         </div>
@@ -480,6 +474,29 @@ export function InterviewsTableView({
                     </>
                 )}
             </div>
+
+            {openStatus && (
+                <PortalDropdown
+                    items={Object.values(InterviewStatus)}
+                    currentValue={openStatus.item.status}
+                    onSelect={(status) => {
+                        onStatusChange?.(openStatus.id, status);
+                        setOpenStatus(null);
+                    }}
+                    onClose={() => setOpenStatus(null)}
+                    anchorRef={anchorRef}
+                    renderItem={(status, isCurrent) => {
+                        const cfg = statusConfig[status];
+                        return (
+                            <>
+                                <div className={cn('w-2 h-2 rounded-full ring-1 ring-black/5', cfg.dot)} />
+                                <span className="flex-1">{status.replace(/_/g, ' ')}</span>
+                                {isCurrent && <Check size={14} className="text-[#A600FF]" />}
+                            </>
+                        );
+                    }}
+                />
+            )}
         </>
     );
 }
