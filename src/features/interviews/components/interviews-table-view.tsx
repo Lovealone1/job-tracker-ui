@@ -12,6 +12,8 @@ import {
     MessageSquare,
     CalendarClock,
     Check,
+    ChevronLeft,
+    ChevronRight,
 } from 'lucide-react';
 import { CrudTable } from '@/components/shared/crud-table';
 import { InterviewSummary, InterviewStatus, InterviewType } from '@/types/interview';
@@ -173,6 +175,119 @@ function StatusCell({
     );
 }
 
+/* ── Mobile card view ──────────────────────────────────────── */
+
+function MobileInterviewCard({
+    item,
+    onView,
+    onEdit,
+    onDelete,
+    onNotes,
+    onFeedback,
+    onReschedule,
+    onStatusToggle,
+    isStatusOpen,
+    statusUpdatingId,
+    onStatusSelect,
+    onStatusClose
+}: {
+    item: InterviewSummary;
+    onView?: (item: InterviewSummary) => void;
+    onEdit?: (item: InterviewSummary) => void;
+    onDelete?: (item: InterviewSummary) => void;
+    onNotes?: (item: InterviewSummary) => void;
+    onFeedback?: (item: InterviewSummary) => void;
+    onReschedule?: (item: InterviewSummary) => void;
+    onStatusToggle: () => void;
+    isStatusOpen: boolean;
+    statusUpdatingId?: string | null;
+    onStatusSelect: (status: InterviewStatus) => void;
+    onStatusClose: () => void;
+}) {
+    return (
+        <div className="bg-white/80 dark:bg-zinc-900/80 backdrop-blur-sm border border-zinc-200 dark:border-zinc-800 rounded-2xl p-4 space-y-4 shadow-sm">
+            <div className="flex justify-between items-start gap-4">
+                <div className="flex flex-col min-w-0">
+                    <span className="font-bold text-zinc-900 dark:text-zinc-100 text-lg leading-tight truncate">
+                        {item.jobApplication?.title || 'N/A'}
+                    </span>
+                    <span className="text-sm text-zinc-500 font-medium truncate">
+                        {item.jobApplication?.company || ''}
+                    </span>
+                </div>
+                <div className="flex gap-1 shrink-0">
+                    <button onClick={() => onView?.(item)} className="p-2 text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 transition-colors">
+                        <Eye size={18} />
+                    </button>
+                    <button onClick={() => onEdit?.(item)} className="p-2 text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 transition-colors">
+                        <Pencil size={18} />
+                    </button>
+                </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4 pb-4 border-b border-zinc-100 dark:border-zinc-800/50">
+                <div className="space-y-1.5">
+                    <p className="text-[10px] font-black uppercase tracking-widest text-zinc-400">Type</p>
+                    <span className={cn(
+                        'inline-flex text-[10px] font-black uppercase tracking-widest px-2 py-1 rounded-full',
+                        typeColors[item.type]
+                    )}>
+                        {item.type.replace(/_/g, ' ')}
+                    </span>
+                </div>
+                <div className="space-y-1.5">
+                    <p className="text-[10px] font-black uppercase tracking-widest text-zinc-400">Status</p>
+                    <StatusCell
+                        item={item}
+                        isOpen={isStatusOpen}
+                        isUpdating={statusUpdatingId === item.id}
+                        onToggle={onStatusToggle}
+                        onSelect={onStatusSelect}
+                        onClose={onStatusClose}
+                    />
+                </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4 pt-1">
+                <div className="space-y-1.5">
+                    <p className="text-[10px] font-black uppercase tracking-widest text-zinc-400">Scheduled</p>
+                    <div className="flex flex-col">
+                        <span className="text-xs font-bold text-zinc-700 dark:text-zinc-300">
+                             {format(new Date(item.scheduledAt), 'MMM dd, yyyy')}
+                        </span>
+                        <span className="text-[10px] text-zinc-500 font-medium uppercase tracking-wider">
+                            {format(new Date(item.scheduledAt), 'HH:mm')} ({item.durationMinutes || '—'}m)
+                        </span>
+                    </div>
+                </div>
+                <div className="space-y-1.5 flex flex-col justify-end items-end">
+                    <button 
+                        onClick={() => onReschedule?.(item)}
+                        className="flex items-center gap-1.5 px-3 py-1.5 bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-all active:scale-95"
+                    >
+                        <CalendarClock size={12} />
+                        Reschedule
+                    </button>
+                </div>
+            </div>
+
+            <div className="flex items-center justify-between pt-2 border-t border-zinc-50 dark:border-zinc-800/30">
+                <div className="flex items-center gap-2">
+                    <button onClick={() => onNotes?.(item)} className="p-2 bg-zinc-50 dark:bg-zinc-800 text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100 rounded-xl transition-colors" title="Notes">
+                        <ClipboardList size={16} />
+                    </button>
+                    <button onClick={() => onFeedback?.(item)} className="p-2 bg-zinc-50 dark:bg-zinc-800 text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100 rounded-xl transition-colors" title="Feedback">
+                        <MessageSquare size={16} />
+                    </button>
+                    <button onClick={() => onDelete?.(item)} className="p-2 bg-red-50 dark:bg-red-900/10 text-red-500 hover:text-red-700 rounded-xl transition-colors" title="Delete">
+                        <Trash2 size={16} />
+                    </button>
+                </div>
+            </div>
+        </div>
+    );
+}
+
 /* ── Main table view ──────────────────────────────────────── */
 
 export function InterviewsTableView({
@@ -291,11 +406,80 @@ export function InterviewsTableView({
     ];
 
     return (
-        <CrudTable
-            data={data}
-            columns={columns}
-            isLoading={isLoading}
-            pagination={pagination}
-        />
+        <>
+            {/* Desktop Table View */}
+            <div className="hidden md:block">
+                <CrudTable
+                    data={data}
+                    columns={columns}
+                    isLoading={isLoading}
+                    pagination={pagination}
+                />
+            </div>
+
+            {/* Mobile Card View */}
+            <div className="md:hidden flex flex-col gap-4 pb-20">
+                {isLoading ? (
+                    <div className="flex flex-col items-center justify-center py-20 bg-white/50 dark:bg-zinc-900/50 rounded-3xl border border-zinc-200 dark:border-zinc-800">
+                        <div className="w-8 h-8 border-[3px] border-zinc-200 border-t-[#A600FF] rounded-full animate-spin mb-4" />
+                        <span className="text-sm text-zinc-400 font-bold uppercase tracking-widest">Loading...</span>
+                    </div>
+                ) : data.length === 0 ? (
+                    <div className="text-center py-20 bg-white/50 dark:bg-zinc-900/50 rounded-3xl border border-dashed border-zinc-300 dark:border-zinc-800">
+                        <p className="text-zinc-500 font-medium">No interviews found</p>
+                    </div>
+                ) : (
+                    <>
+                        <div className="grid grid-cols-1 gap-4">
+                            {data.map((item) => (
+                                <MobileInterviewCard
+                                    key={item.id}
+                                    item={item}
+                                    onView={onView}
+                                    onEdit={onEdit}
+                                    onDelete={onDelete}
+                                    onNotes={onNotes}
+                                    onFeedback={onFeedback}
+                                    onReschedule={onReschedule}
+                                    onStatusToggle={() => setOpenStatusId(openStatusId === item.id ? null : item.id)}
+                                    isStatusOpen={openStatusId === item.id}
+                                    statusUpdatingId={statusUpdatingId}
+                                    onStatusSelect={(status) => {
+                                        onStatusChange?.(item.id, status);
+                                        setOpenStatusId(null);
+                                    }}
+                                    onStatusClose={() => setOpenStatusId(null)}
+                                />
+                            ))}
+                        </div>
+
+                        {/* Pagination for Mobile */}
+                        {pagination && (
+                            <div className="flex items-center justify-between px-2 py-4 mt-2">
+                                <span className="text-[10px] font-black uppercase tracking-widest text-zinc-500">
+                                    Page {pagination.page + 1}
+                                </span>
+                                <div className="flex gap-2">
+                                    <button
+                                        onClick={() => pagination.onPageChange(Math.max(0, pagination.page - 1))}
+                                        disabled={pagination.page === 0}
+                                        className="p-3 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl text-zinc-600 disabled:opacity-30"
+                                    >
+                                        <ChevronLeft size={20} />
+                                    </button>
+                                    <button
+                                        onClick={() => pagination.onPageChange(pagination.page + 1)}
+                                        disabled={!pagination.hasMore}
+                                        className="p-3 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl text-zinc-600 disabled:opacity-30"
+                                    >
+                                        <ChevronRight size={20} />
+                                    </button>
+                                </div>
+                            </div>
+                        )}
+                    </>
+                )}
+            </div>
+        </>
     );
 }

@@ -100,9 +100,9 @@ export default function InterviewsPage() {
     );
 
     return (
-        <div className="h-[calc(100vh-72px)] flex flex-col overflow-hidden bg-background">
+        <div className="h-full flex flex-col overflow-hidden bg-background">
             {/* Header */}
-            <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 px-8 pt-2 pb-4 bg-white/40 dark:bg-zinc-950/20 backdrop-blur-md border-b border-zinc-200 dark:border-zinc-800">
+            <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 px-4 md:px-8 pt-4 md:pt-2 pb-6 md:pb-4 bg-white/40 dark:bg-zinc-950/20 backdrop-blur-md border-b border-zinc-200 dark:border-zinc-800">
                 <div className="space-y-4">
                     <div className="flex items-center gap-4">
                         <div className="p-2.5 bg-[#A600FF] shadow-lg shadow-[#A600FF]/25 rounded-2xl">
@@ -122,23 +122,23 @@ export default function InterviewsPage() {
 
                 <button
                     onClick={() => setIsCreateOpen(true)}
-                    className="flex items-center gap-2 px-6 py-3 bg-[#A600FF] hover:bg-[#8B00D6] text-white rounded-2xl text-[10px] font-black shadow-2xl shadow-[#A600FF]/40 transition-all hover:-translate-y-1 active:translate-y-0 text-nowrap uppercase tracking-widest"
+                    className="flex items-center gap-2 self-start md:self-auto px-6 py-3 bg-[#A600FF] hover:bg-[#8B00D6] text-white rounded-2xl text-[10px] font-black shadow-2xl shadow-[#A600FF]/40 transition-all hover:-translate-y-1 active:translate-y-0 text-nowrap uppercase tracking-widest"
                 >
                     <Plus className="w-5 h-5" />
                     Create
                 </button>
             </div>
 
-            <div className="flex-1 overflow-y-auto p-8 pt-6 space-y-6 custom-scrollbar">
+            <div className="flex-1 overflow-y-auto md:overflow-hidden p-4 md:p-8 pt-6 space-y-6 custom-scrollbar">
 
                 {/* View Mode Toggle + Filters */}
-                <div className="flex flex-col sm:flex-row gap-4">
+                <div className="flex flex-col sm:flex-row sm:justify-between gap-4">
                     {/* View toggle */}
-                    <div className="flex rounded-xl border border-zinc-200 dark:border-zinc-800 overflow-hidden shrink-0">
+                    <div className="flex w-full sm:w-auto rounded-xl border border-zinc-200 dark:border-zinc-800 overflow-hidden shrink-0">
                         <button
                             onClick={() => { setViewMode('all'); setPage(0); }}
                             className={cn(
-                                'px-4 py-2.5 text-sm font-bold transition-colors',
+                                'flex-1 sm:flex-none px-4 py-2.5 text-sm font-bold transition-colors',
                                 viewMode === 'all' ? 'bg-[#A600FF] text-white' : 'bg-zinc-50 dark:bg-zinc-900 text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800'
                             )}
                         >
@@ -147,16 +147,16 @@ export default function InterviewsPage() {
                         <button
                             onClick={() => { setViewMode('upcoming'); setPage(0); }}
                             className={cn(
-                                'px-4 py-2.5 text-sm font-bold transition-colors',
+                                'flex-1 sm:flex-none px-4 py-2.5 text-sm font-bold transition-colors',
                                 viewMode === 'upcoming' ? 'bg-[#A600FF] text-white' : 'bg-zinc-50 dark:bg-zinc-900 text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800'
                             )}
                         >
-                            Upcoming (14 days)
+                            Upcoming
                         </button>
                     </div>
 
                     {/* Search */}
-                    <div className="relative flex-1">
+                    <div className="relative flex-1 md:max-w-md">
                         <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400" size={18} />
                         <input
                             type="text"
