@@ -56,7 +56,8 @@ export function CrudTable<T>({ data, columns, isLoading, pagination, className }
                                     className={cn(
                                         "px-4 sm:px-6 py-3 sm:py-4 whitespace-nowrap",
                                         col.align === 'center' && "text-center",
-                                        col.align === 'right' && "text-right"
+                                        col.align === 'right' && "text-right",
+                                        col.className
                                     )}
                                 >
                                     {col.header}
@@ -73,7 +74,8 @@ export function CrudTable<T>({ data, columns, isLoading, pagination, className }
                                         className={cn(
                                             "px-4 sm:px-6 py-3 whitespace-nowrap text-zinc-700 dark:text-zinc-300",
                                             col.align === 'center' && "text-center",
-                                            col.align === 'right' && "text-right"
+                                            col.align === 'right' && "text-right",
+                                            col.className
                                         )}
                                     >
                                         <div className={cn(

@@ -159,19 +159,19 @@ export default function ApplicationsPage() {
     });
 
     return (
-        <div className="h-[calc(100vh-72px)] flex flex-col overflow-hidden bg-background">
+        <div className="h-full flex flex-col overflow-hidden bg-background">
             {/* Header */}
-            <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 px-8 pt-2 pb-4 bg-white/40 dark:bg-zinc-950/20 backdrop-blur-md border-b border-zinc-200 dark:border-zinc-800">
+            <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 px-4 md:px-8 pt-4 pb-6 bg-white/40 dark:bg-zinc-950/20 backdrop-blur-md border-b border-zinc-200 dark:border-zinc-800">
                 <div className="space-y-4">
                     <div className="flex items-center gap-4">
-                        <div className="p-2.5 bg-[#A600FF] shadow-lg shadow-[#A600FF]/25 rounded-2xl">
-                            <Briefcase className="w-8 h-8 text-white" />
+                        <div className="p-2 bg-[#A600FF] shadow-lg shadow-[#A600FF]/25 rounded-2xl">
+                            <Briefcase className="w-6 h-6 md:w-8 md:h-8 text-white" />
                         </div>
                         <div>
-                            <h1 className="text-5xl font-black tracking-tighter text-zinc-900 dark:text-zinc-50 leading-none italic">
+                            <h1 className="text-3xl md:text-5xl font-black tracking-tighter text-zinc-900 dark:text-zinc-50 leading-none italic">
                                 Applications
                             </h1>
-                            <p className="text-zinc-500 dark:text-zinc-400 text-[10px] font-black uppercase tracking-[0.3em] mt-3 flex items-center gap-2">
+                            <p className="text-zinc-500 dark:text-zinc-400 text-[8px] md:text-[10px] font-black uppercase tracking-[0.3em] mt-2 md:mt-3 flex items-center gap-2">
                                 <span className="w-2 h-2 rounded-full bg-[#A600FF]" />
                                 Job Search Process & Tracking
                             </p>
@@ -181,17 +181,17 @@ export default function ApplicationsPage() {
 
                 <button
                     onClick={() => setIsCreateOpen(true)}
-                    className="flex items-center gap-2 px-6 py-3 bg-[#A600FF] hover:bg-[#8B00D6] text-white rounded-2xl text-[10px] font-black shadow-2xl shadow-[#A600FF]/40 transition-all hover:-translate-y-1 active:translate-y-0 text-nowrap uppercase tracking-widest"
+                    className="self-start md:self-auto flex items-center gap-2 px-6 py-3 bg-[#A600FF] hover:bg-[#8B00D6] text-white rounded-2xl text-[10px] font-black shadow-2xl shadow-[#A600FF]/40 transition-all hover:-translate-y-1 active:translate-y-0 text-nowrap uppercase tracking-widest"
                 >
                     <Plus className="w-5 h-5" />
                     Create
                 </button>
             </div>
 
-            <div className="flex-1 overflow-y-auto p-8 pt-6 space-y-6 custom-scrollbar">
+            <div className="flex-1 overflow-y-auto md:overflow-hidden p-4 md:p-8 pt-6 space-y-6 custom-scrollbar">
                 {/* Filters & Search */}
-                <div className="flex flex-col sm:flex-row gap-4">
-                    <div className="relative flex-1">
+                <div className="flex flex-col sm:flex-row sm:justify-between gap-4">
+                    <div className="relative flex-1 md:max-w-md">
                         <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400" size={18} />
                         <input
                             type="text"
