@@ -78,7 +78,7 @@ export function AdvancedFiltersBar({ isOpen, filters, onFilterChange, onClear }:
                     >
                         <option value="">All Statuses</option>
                         {Object.values(JobApplicationStatus).map(v => (
-                            <option key={v} value={v}>{v}</option>
+                            <option key={v} value={v}>{(v.charAt(0) + v.slice(1).toLowerCase()).replace('_', ' ')}</option>
                         ))}
                     </select>
                 </div>

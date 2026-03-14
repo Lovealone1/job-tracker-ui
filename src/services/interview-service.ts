@@ -25,6 +25,16 @@ class InterviewService {
         return response.data;
     }
 
+    async getSummary(): Promise<any> {
+        const response = await apiClient.get<any>(`${this.resource}/summary`);
+        return response.data;
+    }
+
+    async getNext(): Promise<InterviewSummary | null> {
+        const response = await apiClient.get<InterviewSummary | null>(`${this.resource}/next`);
+        return response.data;
+    }
+
     async getByJobApplication(jobApplicationId: string): Promise<InterviewSummary[]> {
         const response = await apiClient.get<InterviewSummary[]>(
             `${this.resource}/job-application/${jobApplicationId}`

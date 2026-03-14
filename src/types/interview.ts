@@ -37,6 +37,8 @@ export interface InterviewSummary {
     jobApplication?: JobApplicationLight;
     notes?: string;
     feedback?: string;
+    interviewerName?: string;
+    meetingUrl?: string;
 }
 
 /** Full detail returned in single-get / create / update */

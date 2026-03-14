@@ -19,7 +19,7 @@ export const jobApplicationSchema = z.object({
     country: z.string().optional(),
     workMode: z.nativeEnum(WorkMode).default(WorkMode.ON_SITE),
     employmentType: z.nativeEnum(EmploymentType).default(EmploymentType.FULL_TIME),
-    contractType: z.nativeEnum(ContractType).default(ContractType.PERMANENT),
+    contractType: z.nativeEnum(ContractType).default(ContractType.UNDEFINED),
     seniorityLevel: z.string().optional(),
     compensationAmountMin: z.number().min(0).optional(),
     compensationAmountMax: z.number().min(0).optional(),
@@ -43,7 +43,7 @@ export const applicationCrudConfig: CrudEntityConfig = {
     defaultValues: {
         workMode: WorkMode.ON_SITE,
         employmentType: EmploymentType.FULL_TIME,
-        contractType: ContractType.PERMANENT,
+        contractType: ContractType.UNDEFINED,
         compensationType: CompensationType.MONTHLY,
         currency: 'USD',
         status: JobApplicationStatus.SAVED,
@@ -111,7 +111,10 @@ export const applicationCrudConfig: CrudEntityConfig = {
             name: 'contractType',
             label: 'Contract Type',
             type: 'select',
-            options: Object.values(ContractType).map(v => ({ label: v, value: v })),
+            options: Object.values(ContractType).map(v => ({ 
+                label: (v.charAt(0) + v.slice(1).toLowerCase()).replace('_', ' '), 
+                value: v 
+            })),
         },
         {
             name: 'seniorityLevel',
@@ -123,7 +126,10 @@ export const applicationCrudConfig: CrudEntityConfig = {
             name: 'status',
             label: 'Application Status',
             type: 'select',
-            options: Object.values(JobApplicationStatus).map(v => ({ label: v, value: v })),
+            options: Object.values(JobApplicationStatus).map(v => ({ 
+                label: (v.charAt(0) + v.slice(1).toLowerCase()).replace('_', ' '), 
+                value: v 
+            })),
         },
         {
             name: 'priority',
@@ -146,7 +152,10 @@ export const applicationCrudConfig: CrudEntityConfig = {
             name: 'compensationType',
             label: 'Comp. Frequency',
             type: 'select',
-            options: Object.values(CompensationType).map(v => ({ label: v, value: v })),
+            options: Object.values(CompensationType).map(v => ({ 
+                label: (v.charAt(0) + v.slice(1).toLowerCase()).replace('_', ' '), 
+                value: v 
+            })),
         },
         {
             name: 'currency',

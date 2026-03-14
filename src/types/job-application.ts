@@ -3,7 +3,7 @@ export enum JobApplicationStatus {
     SAVED = 'SAVED',
     APPLIED = 'APPLIED',
     INTERVIEWING = 'INTERVIEWING',
-    OFFER = 'OFFER',
+    OFFER_RECEIVED = 'OFFER_RECEIVED',
     REJECTED = 'REJECTED',
     WITHDRAWN = 'WITHDRAWN',
     GHOSTED = 'GHOSTED',
@@ -31,15 +31,18 @@ export enum EmploymentType {
 }
 
 export enum ContractType {
-    PERMANENT = 'PERMANENT',
-    TEMPORARY = 'TEMPORARY',
     UNDEFINED = 'UNDEFINED',
+    FIXED_TERM = 'FIXED_TERM',
+    PROJECT_BASED = 'PROJECT_BASED',
+    CONTRACTOR = 'CONTRACTOR',
+    OTHER = 'OTHER',
 }
 
 export enum CompensationType {
-    ANNUAL = 'ANNUAL',
-    MONTHLY = 'MONTHLY',
     HOURLY = 'HOURLY',
+    MONTHLY = 'MONTHLY',
+    ANNUAL = 'ANNUAL',
+    PROJECT_BASED = 'PROJECT_BASED',
 }
 
 // Interfaces
@@ -95,7 +98,9 @@ export interface PaginationQuery {
 
 export interface JobApplicationSummary {
     totalApplications: number;
-    byStatus: Record<JobApplicationStatus, number>;
-    byPriority: Record<Priority, number>;
-    recentApplications: JobApplication[];
+    byStatus: Record<string, number>;
+    byWorkMode: Record<string, number>;
+    appliedThisWeek: number;
+    appliedThisMonth: number;
+    upcomingInterviewsCount: number;
 }
