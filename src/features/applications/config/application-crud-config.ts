@@ -5,7 +5,8 @@ import {
     WorkMode, 
     EmploymentType, 
     ContractType, 
-    CompensationType 
+    CompensationType,
+    Seniority
 } from '@/types/job-application';
 import { CrudEntityConfig } from '@/types/crud';
 
@@ -20,7 +21,7 @@ export const jobApplicationSchema = z.object({
     workMode: z.nativeEnum(WorkMode).default(WorkMode.ON_SITE),
     employmentType: z.nativeEnum(EmploymentType).default(EmploymentType.FULL_TIME),
     contractType: z.nativeEnum(ContractType).default(ContractType.UNDEFINED),
-    seniorityLevel: z.string().optional(),
+    seniorityLevel: z.nativeEnum(Seniority).default(Seniority.UNKNOWN),
     compensationAmountMin: z.number().min(0).optional(),
     compensationAmountMax: z.number().min(0).optional(),
     compensationType: z.nativeEnum(CompensationType).default(CompensationType.MONTHLY),
@@ -119,8 +120,11 @@ export const applicationCrudConfig: CrudEntityConfig = {
         {
             name: 'seniorityLevel',
             label: 'Seniority Level',
-            type: 'text',
-            placeholder: 'e.g. Senior, Junior',
+            type: 'select',
+            options: Object.values(Seniority).map(v => ({ 
+                label: (v.charAt(0) + v.slice(1).toLowerCase()).replace('_', ' '), 
+                value: v 
+            })),
         },
         {
             name: 'status',

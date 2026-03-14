@@ -45,6 +45,18 @@ export enum CompensationType {
     PROJECT_BASED = 'PROJECT_BASED',
 }
 
+export enum Seniority {
+    INTERN = 'INTERN',
+    JUNIOR = 'JUNIOR',
+    MID_LEVEL = 'MID_LEVEL',
+    SENIOR = 'SENIOR',
+    TECH_LEAD = 'TECH_LEAD',
+    ARCHITECT = 'ARCHITECT',
+    MANAGEMENT = 'MANAGEMENT',
+    NOT_APPLICABLE = 'NOT_APPLICABLE',
+    UNKNOWN = 'UNKNOWN',
+}
+
 // Interfaces
 export interface JobApplication {
     id: string;
@@ -58,7 +70,7 @@ export interface JobApplication {
     workMode?: WorkMode;
     employmentType?: EmploymentType;
     contractType?: ContractType;
-    seniorityLevel?: string;
+    seniorityLevel?: Seniority;
     compensationAmountMin?: number;
     compensationAmountMax?: number;
     compensationType?: CompensationType;
