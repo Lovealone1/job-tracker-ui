@@ -27,7 +27,7 @@ export function ReminderFilters({ filters, onChange, onClear, onClose }: Reminde
     const isFiltered = filters.type !== 'all';
 
     return (
-        <div className="flex flex-wrap items-center gap-2 p-1 bg-zinc-100 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl w-fit">
+        <div className="flex flex-wrap items-center gap-2 p-1 bg-zinc-100 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl w-full sm:w-fit">
             {/* Calendar View Button (Internal 'all' type) */}
             <button
                 onClick={onClear}
@@ -63,7 +63,7 @@ export function ReminderFilters({ filters, onChange, onClear, onClose }: Reminde
                 value={filters.type === 'job' ? filters.id : ''}
                 onChange={(e) => onChange({ type: 'job', id: e.target.value })}
                 className={cn(
-                    "px-4 py-2 bg-transparent border-none focus:ring-0 text-[10px] font-black uppercase tracking-widest cursor-pointer transition-all rounded-xl",
+                    "flex-1 sm:flex-none px-4 py-2 bg-transparent border-none focus:ring-0 text-[10px] font-black uppercase tracking-widest cursor-pointer transition-all rounded-xl",
                     filters.type === 'job' ? "bg-[#A600FF] text-white shadow-lg shadow-[#A600FF]/25" : "text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100"
                 )}
             >
@@ -80,7 +80,7 @@ export function ReminderFilters({ filters, onChange, onClear, onClose }: Reminde
                 value={filters.type === 'interview' ? filters.id : ''}
                 onChange={(e) => onChange({ type: 'interview', id: e.target.value })}
                 className={cn(
-                    "px-4 py-2 bg-transparent border-none focus:ring-0 text-[10px] font-black uppercase tracking-widest cursor-pointer transition-all rounded-xl",
+                    "flex-1 sm:flex-none px-4 py-2 bg-transparent border-none focus:ring-0 text-[10px] font-black uppercase tracking-widest cursor-pointer transition-all rounded-xl",
                     filters.type === 'interview' ? "bg-[#A600FF] text-white shadow-lg shadow-[#A600FF]/25" : "text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100"
                 )}
             >

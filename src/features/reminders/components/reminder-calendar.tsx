@@ -65,12 +65,14 @@ export function ReminderCalendar({ currentMonth, className, onAddReminder }: Rem
     };
 
     const renderDays = () => {
-        const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+        const fullDays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+        const shortDays = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
         return (
             <div className="grid grid-cols-7 border-b border-zinc-200 dark:border-zinc-800 bg-zinc-50/30 dark:bg-zinc-900/10">
-                {days.map((day, index) => (
-                    <div key={index} className="py-0.5 text-center text-[10px] font-black text-zinc-400 dark:text-zinc-500 uppercase tracking-[0.2em]">
-                        {day}
+                {fullDays.map((day, index) => (
+                    <div key={index} className="py-2 text-center text-[10px] font-black text-zinc-400 dark:text-zinc-500 uppercase tracking-[0.2em]">
+                        <span className="hidden md:inline">{day}</span>
+                        <span className="md:hidden">{shortDays[index]}</span>
                     </div>
                 ))}
             </div>
@@ -123,7 +125,7 @@ export function ReminderCalendar({ currentMonth, className, onAddReminder }: Rem
                                         e.stopPropagation();
                                         onAddReminder?.(cloneDay);
                                     }}
-                                    className="opacity-0 group-hover:opacity-100 p-1.5 rounded-lg bg-[#A600FF]/10 text-[#A600FF] hover:bg-[#A600FF] hover:text-white transition-all transform scale-75 group-hover:scale-100"
+                                    className="md:opacity-0 group-hover:opacity-100 p-1.5 rounded-lg bg-[#A600FF]/10 text-[#A600FF] hover:bg-[#A600FF] hover:text-white transition-all transform scale-100 md:scale-75 md:group-hover:scale-100"
                                 >
                                     <Plus size={14} />
                                 </button>
@@ -133,18 +135,29 @@ export function ReminderCalendar({ currentMonth, className, onAddReminder }: Rem
                         {/* Reminders List */}
                         <div className="mt-0.5 flex-1 flex flex-col gap-0.5 overflow-hidden min-w-0">
                             {dayReminders.length === 1 ? (
-                                <div className="px-1.5 py-0.5 rounded-md bg-[#A600FF]/10 border border-[#A600FF]/20 overflow-hidden min-w-0">
-                                    <p className="text-[10px] font-bold text-[#A600FF] truncate">
-                                        {dayReminders[0].title}
-                                    </p>
-                                </div>
+                                <>
+                                    <div className="hidden md:block px-1.5 py-0.5 rounded-md bg-[#A600FF]/10 border border-[#A600FF]/20 overflow-hidden min-w-0">
+                                        <p className="text-[10px] font-bold text-[#A600FF] truncate">
+                                            {dayReminders[0].title}
+                                        </p>
+                                    </div>
+                                    <div className="md:hidden flex items-center justify-center p-1 bg-[#A600FF]/10 rounded-lg">
+                                        <Bell className="w-3 h-3 text-[#A600FF]" />
+                                    </div>
+                                </>
                             ) : dayReminders.length > 1 ? (
-                                <div className="px-1.5 py-0.5 rounded-md bg-zinc-900 dark:bg-white border border-zinc-200 dark:border-zinc-800 flex items-center gap-1">
-                                    <Bell className="w-2.5 h-2.5 text-white dark:text-zinc-900" />
-                                    <p className="text-[10px] font-black text-white dark:text-zinc-900 uppercase">
-                                        {dayReminders.length} Reminders
-                                    </p>
-                                </div>
+                                <>
+                                    <div className="hidden md:flex px-1.5 py-0.5 rounded-md bg-zinc-900 dark:bg-white border border-zinc-200 dark:border-zinc-800 items-center gap-1">
+                                        <Bell className="w-2.5 h-2.5 text-white dark:text-zinc-900" />
+                                        <p className="text-[10px] font-black text-white dark:text-zinc-900 uppercase">
+                                            {dayReminders.length} Reminders
+                                        </p>
+                                    </div>
+                                    <div className="md:hidden flex items-center justify-center gap-1 p-1 bg-zinc-900 dark:bg-white rounded-lg">
+                                        <Bell className="w-3 h-3 text-white dark:text-zinc-900" />
+                                        <span className="text-[10px] font-black text-white dark:text-zinc-900">{dayReminders.length}</span>
+                                    </div>
+                                </>
                             ) : null}
                         </div>
 

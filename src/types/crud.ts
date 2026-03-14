@@ -15,6 +15,7 @@ export interface TableColumn<T> {
     accessorKey: keyof T | string;
     render?: (item: T) => React.ReactNode;
     align?: 'left' | 'center' | 'right';
+    className?: string;
 }
 
 export interface CrudEntityConfig<T = any, CreateDTO = any, UpdateDTO = CreateDTO> {

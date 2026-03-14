@@ -403,6 +403,126 @@ function ResumeCell({
 }
 
 
+/* ── Mobile card view ──────────────────────────────────────── */
+
+function MobileApplicationCard({
+    item,
+    onView,
+    onEdit,
+    onDelete,
+    onNotes,
+    onStatusToggle,
+    onPriorityToggle,
+    onLinkToggle,
+    isStatusOpen,
+    isPriorityOpen,
+    statusUpdatingId,
+    priorityUpdatingId,
+    onStatusSelect,
+    onPrioritySelect,
+    onStatusClose,
+    onPriorityClose
+}: {
+    item: JobApplication;
+    onView?: (item: JobApplication) => void;
+    onEdit?: (item: JobApplication) => void;
+    onDelete?: (item: JobApplication) => void;
+    onNotes?: (item: JobApplication) => void;
+    onStatusToggle: () => void;
+    onPriorityToggle: () => void;
+    onLinkToggle: () => void;
+    isStatusOpen: boolean;
+    isPriorityOpen: boolean;
+    statusUpdatingId?: string | null;
+    priorityUpdatingId?: string | null;
+    onStatusSelect: (status: JobApplicationStatus) => void;
+    onPrioritySelect: (priority: Priority) => void;
+    onStatusClose: () => void;
+    onPriorityClose: () => void;
+}) {
+    return (
+        <div className="bg-white/80 dark:bg-zinc-900/80 backdrop-blur-sm border border-zinc-200 dark:border-zinc-800 rounded-2xl p-4 space-y-4 shadow-sm">
+            <div className="flex justify-between items-start gap-4">
+                <div className="flex flex-col min-w-0">
+                    <span className="font-bold text-zinc-900 dark:text-zinc-100 text-lg leading-tight truncate">{item.title}</span>
+                    <span className="text-sm text-zinc-500 font-medium truncate">{item.company}</span>
+                </div>
+                <div className="flex gap-1 shrink-0">
+                     <button onClick={() => onView?.(item)} className="p-2 text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 transition-colors" title="View Details">
+                        <Eye size={18} />
+                    </button>
+                    <button onClick={() => onEdit?.(item)} className="p-2 text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 transition-colors" title="Edit">
+                        <Pencil size={18} />
+                    </button>
+                </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4 pb-4 border-b border-zinc-100 dark:border-zinc-800/50">
+                <div className="space-y-1.5">
+                    <p className="text-[10px] font-black uppercase tracking-widest text-zinc-400">Status</p>
+                    <StatusCell
+                        item={item}
+                        isOpen={isStatusOpen}
+                        isUpdating={statusUpdatingId === item.id}
+                        onToggle={onStatusToggle}
+                        onSelect={onStatusSelect}
+                        onClose={onStatusClose}
+                    />
+                </div>
+                <div className="space-y-1.5">
+                    <p className="text-[10px] font-black uppercase tracking-widest text-zinc-400">Priority</p>
+                    <PriorityCell
+                        item={item}
+                        isOpen={isPriorityOpen}
+                        isUpdating={priorityUpdatingId === item.id}
+                        onToggle={onPriorityToggle}
+                        onSelect={onPrioritySelect}
+                        onClose={onPriorityClose}
+                    />
+                </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4 pt-1">
+                <div className="space-y-1.5">
+                    <p className="text-[10px] font-black uppercase tracking-widest text-zinc-400">Info</p>
+                    <div className="flex flex-col gap-0.5">
+                         <span className="text-xs text-zinc-700 dark:text-zinc-300 font-bold truncate">
+                            {item.location || 'N/A'}{item.country ? `, ${item.country}` : ''}
+                        </span>
+                        <span className="text-[10px] text-zinc-500 font-medium uppercase tracking-wider">
+                            {item.workMode?.replace(/_/g, ' ') || 'N/A'}
+                        </span>
+                    </div>
+                </div>
+                <div className="space-y-1.5">
+                    <p className="text-[10px] font-black uppercase tracking-widest text-zinc-400">CV Variant</p>
+                    <ResumeCell
+                        item={item}
+                        onToggle={onLinkToggle}
+                    />
+                </div>
+            </div>
+
+            <div className="flex items-center justify-between pt-2 border-t border-zinc-50 dark:border-zinc-800/30">
+                <div className="flex items-center gap-2">
+                     <button onClick={() => onNotes?.(item)} className="p-2 bg-zinc-50 dark:bg-zinc-800 text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100 rounded-xl transition-colors" title="Notes">
+                        <ClipboardList size={16} />
+                    </button>
+                     <button onClick={() => onDelete?.(item)} className="p-2 bg-red-50 dark:bg-red-900/10 text-red-500 hover:text-red-700 rounded-xl transition-colors" title="Delete">
+                        <Trash2 size={16} />
+                    </button>
+                </div>
+                <span className="text-[10px] text-zinc-400 font-bold uppercase tracking-widest">
+                    {item.appliedAt
+                        ? `${format(new Date(item.appliedAt), 'MMM dd, yyyy')}`
+                        : 'Not applied'}
+                </span>
+            </div>
+        </div>
+    );
+}
+
+
 /* ── Main table view ──────────────────────────────────────── */
 
 export function ApplicationsTableView({
@@ -439,6 +559,7 @@ export function ApplicationsTableView({
             header: 'Location',
             accessorKey: 'location',
             align: 'center',
+            className: 'hidden md:table-cell',
             render: (item) => (
                 <div className="flex flex-col text-xs">
                     <span className="text-zinc-700 dark:text-zinc-300">{item.location || 'N/A'}</span>
@@ -450,6 +571,7 @@ export function ApplicationsTableView({
             header: 'Source',
             accessorKey: 'source',
             align: 'center',
+            className: 'hidden md:table-cell',
             render: (item) => (
                 <span className="text-xs px-2 py-1 bg-zinc-100 dark:bg-zinc-800 rounded-md font-medium text-zinc-600 dark:text-zinc-400">
                     {item.source || 'Direct'}
@@ -460,6 +582,7 @@ export function ApplicationsTableView({
             header: 'Work Mode',
             accessorKey: 'workMode',
             align: 'center',
+            className: 'hidden md:table-cell',
             render: (item) => {
                 const colors: Record<string, string> = {
                     [WorkMode.REMOTE]: 'text-sky-600 bg-sky-50 dark:bg-sky-900/20 dark:text-sky-400',
@@ -533,6 +656,7 @@ export function ApplicationsTableView({
             header: 'Applied On',
             accessorKey: 'appliedAt',
             align: 'center',
+            className: 'hidden md:table-cell',
             render: (item) => (
                 <span className="text-xs text-zinc-500">
                     {item.appliedAt
@@ -566,21 +690,101 @@ export function ApplicationsTableView({
 
     return (
         <>
-        <CrudTable
-            data={data}
-            columns={columns}
-            isLoading={isLoading}
-            pagination={pagination}
-        />
-        
-        <ResumeLinkModal
-            isOpen={!!linkingItem}
-            onClose={() => setLinkingItem(null)}
-            onSelect={(id: string) => linkingItem && onResumeVariantChange?.(linkingItem.id, id)}
-            currentId={linkingItem?.resumeVariantId}
-            variants={resumeVariants}
-            applicationTitle={linkingItem?.title || ''}
-        />
+            {/* Desktop Table */}
+            <div className="hidden md:block">
+                <CrudTable
+                    data={data}
+                    columns={columns}
+                    isLoading={isLoading}
+                    pagination={pagination}
+                />
+            </div>
+
+            {/* Mobile Cards */}
+            <div className="md:hidden flex flex-col gap-4 pb-20">
+                {isLoading ? (
+                    <div className="flex flex-col items-center justify-center py-20 bg-white/50 dark:bg-zinc-900/50 rounded-3xl border border-zinc-200 dark:border-zinc-800">
+                         <div className="w-8 h-8 border-[3px] border-zinc-200 border-t-[#A600FF] rounded-full animate-spin mb-4" />
+                         <span className="text-sm text-zinc-400 font-bold uppercase tracking-widest">Loading...</span>
+                    </div>
+                ) : data.length === 0 ? (
+                    <div className="text-center py-20 bg-white/50 dark:bg-zinc-900/50 rounded-3xl border border-dashed border-zinc-300 dark:border-zinc-800">
+                        <p className="text-zinc-500 font-medium">No applications found</p>
+                    </div>
+                ) : (
+                    <>
+                        <div className="grid grid-cols-1 gap-4">
+                            {data.map((item) => (
+                                <MobileApplicationCard
+                                    key={item.id}
+                                    item={item}
+                                    onView={onView}
+                                    onEdit={onEdit}
+                                    onDelete={onDelete}
+                                    onNotes={onNotes}
+                                    onStatusToggle={() => {
+                                        setOpenStatusId(openStatusId === item.id ? null : item.id);
+                                        setOpenPriorityId(null);
+                                    }}
+                                    onPriorityToggle={() => {
+                                        setOpenPriorityId(openPriorityId === item.id ? null : item.id);
+                                        setOpenStatusId(null);
+                                    }}
+                                    onLinkToggle={() => setLinkingItem(item)}
+                                    isStatusOpen={openStatusId === item.id}
+                                    isPriorityOpen={openPriorityId === item.id}
+                                    statusUpdatingId={statusUpdatingId}
+                                    priorityUpdatingId={priorityUpdatingId}
+                                    onStatusSelect={(status) => {
+                                        onStatusChange?.(item.id, status);
+                                        setOpenStatusId(null);
+                                    }}
+                                    onPrioritySelect={(priority) => {
+                                        onPriorityChange?.(item.id, priority);
+                                        setOpenPriorityId(null);
+                                    }}
+                                    onStatusClose={() => setOpenStatusId(null)}
+                                    onPriorityClose={() => setOpenPriorityId(null)}
+                                />
+                            ))}
+                        </div>
+
+                        {/* Mobile Pagination */}
+                        {pagination && (
+                            <div className="flex items-center justify-between px-2 py-4 mt-2">
+                                <span className="text-[10px] font-black uppercase tracking-widest text-zinc-500">
+                                    Page {pagination.page + 1}
+                                </span>
+                                <div className="flex gap-2">
+                                     <button
+                                        onClick={() => pagination.onPageChange(Math.max(0, pagination.page - 1))}
+                                        disabled={pagination.page === 0}
+                                        className="p-3 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl text-zinc-600 disabled:opacity-30"
+                                    >
+                                        <ChevronLeft size={20} />
+                                    </button>
+                                    <button
+                                        onClick={() => pagination.onPageChange(pagination.page + 1)}
+                                        disabled={!pagination.hasMore}
+                                        className="p-3 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl text-zinc-600 disabled:opacity-30"
+                                    >
+                                        <ChevronRight size={20} />
+                                    </button>
+                                </div>
+                            </div>
+                        )}
+                    </>
+                )}
+            </div>
+
+            <ResumeLinkModal
+                isOpen={!!linkingItem}
+                onClose={() => setLinkingItem(null)}
+                onSelect={(id: string) => linkingItem && onResumeVariantChange?.(linkingItem.id, id)}
+                currentId={linkingItem?.resumeVariantId}
+                variants={resumeVariants}
+                applicationTitle={linkingItem?.title || ''}
+            />
         </>
     );
 }

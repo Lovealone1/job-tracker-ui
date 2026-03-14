@@ -169,7 +169,7 @@ export function CrudFormDialog({
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-zinc-950/50 backdrop-blur-sm overflow-y-auto">
             <div
-                className="w-full max-w-[95vw] lg:max-w-[90vw] bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl shadow-2xl animate-in fade-in zoom-in-95 duration-200 my-8"
+                className="w-full max-w-[95vw] md:max-w-2xl lg:max-w-5xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl shadow-2xl animate-in fade-in zoom-in-95 duration-200 my-8"
             >
                 <div className="flex items-center justify-between p-6 border-b border-zinc-100 dark:border-zinc-800">
                     <h2 className="text-xl font-black text-zinc-900 dark:text-white">
@@ -182,7 +182,7 @@ export function CrudFormDialog({
                     )}
                 </div>
 
-                <form onSubmit={handleSubmit} className="p-8">
+                <form onSubmit={handleSubmit} className="p-8 max-h-[70vh] md:max-h-none overflow-y-auto">
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-x-8 gap-y-6">
                         {config.formFields.map((field) => (
                             <div key={field.name} className={cn(

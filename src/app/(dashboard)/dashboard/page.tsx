@@ -139,34 +139,34 @@ export default function DashboardPage() {
     const maxStat = Math.max(...statusStats.map(s => s.value), 1);
 
     return (
-        <div className="h-screen w-full bg-background overflow-hidden flex flex-col font-sans select-none animate-in fade-in duration-700">
+        <div className="min-h-screen md:h-screen w-full bg-background overflow-y-auto md:overflow-hidden flex flex-col font-sans select-none animate-in fade-in duration-700">
             {/* Header */}
-            <header className="px-8 pt-6 pb-4 shrink-0">
+            <header className="px-4 md:px-8 pt-6 pb-4 shrink-0">
                 <div className="flex items-center gap-4">
                     <div className="p-2.5 bg-[#A600FF] shadow-lg shadow-[#A600FF]/20 rounded-xl">
                         <LayoutDashboard className="w-5 h-5 text-white" />
                     </div>
-                    <h1 className="text-3xl font-black tracking-tighter text-zinc-900 dark:text-zinc-50 leading-none italic">
+                    <h1 className="text-2xl md:text-3xl font-black tracking-tighter text-zinc-900 dark:text-zinc-50 leading-none italic">
                         Dashboard
                     </h1>
                 </div>
             </header>
 
             {/* Main Content Area */}
-            <main className="flex-1 flex flex-col gap-6 px-8 pb-10 min-h-0 overflow-hidden">
+            <main className="flex-1 flex flex-col gap-6 px-4 md:px-8 pb-10 min-h-0 md:overflow-hidden">
                 
-                {/* 1. KPI Row (Compact) */}
-                <div className="grid grid-cols-4 gap-4 shrink-0">
+                {/* 1. KPI Row (Responsive Grid) */}
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 shrink-0">
                     {kpis.map((kpi) => (
-                        <div key={kpi.title} className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl p-5 shadow-sm hover:shadow-md transition-all border-b-2 border-b-transparent hover:border-b-[#A600FF] group/kpi">
+                        <div key={kpi.title} className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl p-4 md:p-5 shadow-sm hover:shadow-md transition-all border-b-2 border-b-transparent hover:border-b-[#A600FF] group/kpi">
                             <div className="flex justify-between items-start mb-2">
                                 <div className={cn("p-2 rounded-lg transition-colors group-hover/kpi:bg-[#A600FF]/10", kpi.bg)}>
                                     <kpi.icon size={16} className={cn(kpi.color, "group-hover/kpi:text-[#A600FF]")} />
                                 </div>
-                                <span className="text-2xl font-black tracking-tighter text-zinc-900 dark:text-zinc-100 leading-none group-hover/kpi:text-[#A600FF] transition-colors">{kpi.value}</span>
+                                <span className="text-xl md:text-2xl font-black tracking-tighter text-zinc-900 dark:text-zinc-100 leading-none group-hover/kpi:text-[#A600FF] transition-colors">{kpi.value}</span>
                             </div>
-                            <h4 className="text-[10px] font-black text-zinc-400 uppercase tracking-widest italic leading-tight group-hover/kpi:text-zinc-500 transition-colors">{kpi.title}</h4>
-                            <p className="text-[9px] text-zinc-500 mt-1 font-bold uppercase tracking-wider opacity-60 leading-tight">{kpi.desc}</p>
+                            <h4 className="text-[9px] md:text-[10px] font-black text-zinc-400 uppercase tracking-widest italic leading-tight group-hover/kpi:text-zinc-500 transition-colors">{kpi.title}</h4>
+                            <p className="text-[8px] md:text-[9px] text-zinc-500 mt-1 font-bold uppercase tracking-wider opacity-60 leading-tight">{kpi.desc}</p>
                         </div>
                     ))}
                 </div>
@@ -175,7 +175,7 @@ export default function DashboardPage() {
                 <div className="grid grid-cols-12 gap-6 items-start">
                     
                     {/* Left: Recent Activity */}
-                    <div className="col-span-12 lg:col-span-7 xl:col-span-8 bg-[#18181B] dark:bg-[#111113] rounded-[1.5rem] h-[600px] flex flex-col overflow-hidden border border-zinc-800/50 shadow-xl relative">
+                    <div className="col-span-12 lg:col-span-7 xl:col-span-8 bg-[#18181B] dark:bg-[#111113] rounded-[1.5rem] h-auto md:h-[600px] flex flex-col overflow-hidden border border-zinc-800/50 shadow-xl relative">
                         <div className="px-6 py-6 border-b border-zinc-100 dark:border-zinc-800 flex justify-between items-center shrink-0">
                             <div>
                                 <h3 className="text-lg font-black tracking-tighter italic flex items-center gap-2">
@@ -232,9 +232,9 @@ export default function DashboardPage() {
                     </div>
 
                     {/* Right: Next Interview & Stats */}
-                    <div className="col-span-12 lg:col-span-5 xl:col-span-4 flex flex-col gap-4 h-[600px]">
+                    <div className="col-span-12 lg:col-span-5 xl:col-span-4 flex flex-col gap-4 h-auto md:h-[600px]">
                         {/* NEXT INTERVIEW CARD */}
-                        <div className="bg-[#18181B] dark:bg-[#111113] text-white rounded-[1.5rem] p-6 shadow-xl flex flex-col relative overflow-hidden border border-zinc-800/50 shrink-0">
+                        <div className="bg-[#18181B] dark:bg-[#111113] text-white rounded-[1.5rem] p-6 shadow-xl flex flex-col relative overflow-hidden border border-zinc-800/50 shrink-0 min-h-[300px] md:min-h-0">
                             
                             {/* Ambient Flare */}
                             <div className="absolute top-0 right-0 w-32 h-32 bg-[#A600FF]/10 blur-[50px] rounded-full" />
@@ -310,7 +310,7 @@ export default function DashboardPage() {
                         </div>
 
                         {/* PROCESS FUNNEL CARD */}
-                        <div className="bg-[#18181B] dark:bg-[#111113] text-white rounded-[2rem] p-5 shadow-xl flex flex-col relative overflow-hidden flex-1 border border-zinc-800/50">
+                        <div className="bg-[#18181B] dark:bg-[#111113] text-white rounded-[2rem] p-5 shadow-xl flex flex-col relative overflow-hidden h-auto md:flex-1 border border-zinc-800/50 min-h-[300px] md:min-h-0">
                             
                             {/* Ambient Flare */}
                             <div className="absolute -bottom-10 -left-10 w-40 h-40 bg-[#A600FF]/5 blur-[60px] rounded-full" />
@@ -339,13 +339,15 @@ export default function DashboardPage() {
                 </div>
             </main>
 
-            {/* Global no-scroll enforcement */}
+            {/* Global no-scroll enforcement (Only on Desktop) */}
             <style jsx global>{`
-                html, body {
-                    overflow: hidden !important;
-                    height: 100vh;
-                    margin: 0;
-                    padding: 0;
+                @media (min-width: 768px) {
+                    html, body {
+                        overflow: hidden !important;
+                        height: 100vh;
+                        margin: 0;
+                        padding: 0;
+                    }
                 }
                 .scrollbar-hide::-webkit-scrollbar {
                     display: none;
