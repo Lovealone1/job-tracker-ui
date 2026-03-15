@@ -1,5 +1,6 @@
 import axios from 'axios';
-import { AuthResponse, LoginCredentials, User } from '@/types/auth';
+import { AuthResponse, LoginCredentials, User, RegisterCredentials } from '@/types/auth';
+import { queryClient, clearAllCaches } from '@/core/query-client';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
 
@@ -14,6 +15,8 @@ class AuthService {
             const response = await axios.post<AuthResponse>(`${API_URL}/api/v1/auth/token`, credentials);
             
             if (response.data.access_token) {
+                // Clear any leftover cache from previous sessions before starting new one
+                await clearAllCaches();
                 this.setSession(response.data);
             }
             
@@ -24,9 +27,20 @@ class AuthService {
         }
     }
 
+    async register(credentials: RegisterCredentials): Promise<void> {
+        try {
+            await axios.post(`${API_URL}/api/v1/auth/register`, credentials);
+        } catch (error) {
+            console.error('Registration error:', error);
+            throw error;
+        }
+    }
+
     logout(): void {
         if (typeof window !== 'undefined') {
             localStorage.removeItem(this.STORAGE_KEY);
+            // Clear all caches (in-memory and persisted)
+            clearAllCaches().catch(console.error);
         }
     }
 

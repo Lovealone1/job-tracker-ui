@@ -5,6 +5,23 @@ import { persistQueryClient, type PersistedClient } from '@tanstack/react-query-
 import { get, set, del } from 'idb-keyval';
 
 // Custom IDB Persister for TanStack Query
+export const clearPersistedCache = async () => {
+    try {
+        await del('react-query-cache');
+    } catch (err) {
+        console.error('Failed to clear persisted cache:', err);
+    }
+};
+
+/**
+ * Completely wipes all query states (in-memory and persisted).
+ * Essential for security during login/logout.
+ */
+export const clearAllCaches = async () => {
+    queryClient.clear();
+    await clearPersistedCache();
+};
+
 const idbPersister = {
     persistClient: async (client: PersistedClient) => {
         await set('react-query-cache', client);
@@ -12,9 +29,7 @@ const idbPersister = {
     restoreClient: async () => {
         return await get<PersistedClient>('react-query-cache');
     },
-    removeClient: async () => {
-        await del('react-query-cache');
-    },
+    removeClient: clearPersistedCache,
 };
 
 export const queryClient = new QueryClient({

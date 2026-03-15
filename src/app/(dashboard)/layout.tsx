@@ -19,7 +19,7 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
                 `}
             >
                 <TopHeader />
-                <main className="flex-1 px-4 py-3 overflow-hidden">
+                <main className="flex-1 px-4 py-3 overflow-y-auto custom-scrollbar">
                     {children}
                 </main>
             </div>
