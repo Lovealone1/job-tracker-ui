@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowRight, CheckCircle2, FileText, LayoutDashboard, Zap, Shield, Sparkles } from "lucide-react";
+import { ArrowRight, CheckCircle2, FileText, LayoutDashboard, Zap, Shield, Sparkles, BriefcaseBusiness as Briefcase } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 /* ── Local Minimal UI Components ─────────────────────────── */
@@ -39,7 +39,7 @@ export default function Home() {
         <div className="container mx-auto px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-2 group cursor-pointer">
             <div className="w-8 h-8 rounded-lg bg-[#A600FF] flex items-center justify-center shadow-[0_0_15px_rgba(166,0,255,0.4)] group-hover:scale-110 transition-transform">
-              <Zap size={18} className="text-white fill-white" />
+              <Briefcase size={18} className="text-white fill-white" />
             </div>
             <span className="font-black text-xl tracking-tighter italic uppercase text-white">JobTracker</span>
           </div>
@@ -180,7 +180,7 @@ export default function Home() {
       <footer className="border-t border-white/5 bg-zinc-950/50 py-12">
         <div className="container mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-8">
           <div className="flex items-center gap-2">
-            <Zap size={16} className="text-[#A600FF] fill-[#A600FF]" />
+            <Briefcase size={16} className="text-[#A600FF] fill-[#A600FF]" />
             <span className="font-black tracking-tighter italic uppercase text-sm text-white">JobTracker</span>
           </div>
           
