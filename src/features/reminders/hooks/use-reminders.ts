@@ -56,10 +56,10 @@ export function useRemindersByInterview(interviewId: string) {
     });
 }
 
-export function useReminder(id: string) {
+export function useReminder(id: string, enabled = true) {
     return useQuery({
         queryKey: REMINDERS_KEYS.detail(id),
         queryFn: () => reminderService.getById(id),
-        enabled: authService.isAuthenticated() && !!id,
+        enabled: authService.isAuthenticated() && !!id && enabled,
     });
 }

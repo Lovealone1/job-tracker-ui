@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Briefcase, Mail, Lock, ArrowRight, Eye, EyeOff } from 'lucide-react';
 import { useLogin } from '@/hooks/use-login';
+import Link from 'next/link';
 
 export default function LoginPage() {
     const router = useRouter();
@@ -175,9 +176,9 @@ export default function LoginPage() {
 
                         <p className="mt-6 text-center text-xs text-zinc-600">
                             Don&apos;t have an account?{' '}
-                            <span className="text-[#A600FF] font-medium cursor-pointer hover:underline">
-                                Contact your admin
-                            </span>
+                            <Link href="/register" className="text-[#A600FF] font-medium hover:underline">
+                                Register now
+                            </Link>
                         </p>
                     </div>
                 </div>

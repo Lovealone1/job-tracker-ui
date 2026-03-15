@@ -5,6 +5,7 @@ import { toast } from 'sonner';
 import { Briefcase, Filter, Search, Plus } from 'lucide-react';
 import { useApplications } from '@/features/applications/hooks/use-applications';
 import { useApplicationMutations } from '@/features/applications/hooks/use-application-mutations';
+import { useNotification } from '@/providers/notification-provider';
 import { useResumeVariants } from '@/features/resumes/hooks/use-resumes';
 import { ApplicationsTableView } from '@/features/applications/components/applications-table-view';
 import { ApplicationDetailModal } from '@/features/applications/components/application-detail-modal';
@@ -55,11 +56,13 @@ export default function ApplicationsPage() {
     const {
         createApplication,
         updateApplication,
-        updateStatus,
-        updatePriority,
-        updateResumeVariant,
+        statusMutation,
+        priorityMutation,
+        resumeVariantMutation,
         deleteApplication
     } = useApplicationMutations();
+
+    const { showSuccess, showError } = useNotification();
 
     const { data: variantsData } = useResumeVariants();
     const variants = variantsData || [];
@@ -85,7 +88,9 @@ export default function ApplicationsPage() {
     const handleStatusChange = async (id: string, status: JobApplicationStatus) => {
         setStatusUpdatingId(id);
         try {
-            await updateStatus.mutateAsync({ id, status });
+            await statusMutation.mutateAsync({ id, status });
+        } catch (error) {
+            // Error handled in mutation
         } finally {
             setStatusUpdatingId(null);
         }
@@ -94,7 +99,9 @@ export default function ApplicationsPage() {
     const handlePriorityChange = async (id: string, priority: Priority) => {
         setPriorityUpdatingId(id);
         try {
-            await updatePriority.mutateAsync({ id, priority });
+            await priorityMutation.mutateAsync({ id, priority });
+        } catch (error) {
+            // Error handled in mutation
         } finally {
             setPriorityUpdatingId(null);
         }
@@ -102,9 +109,9 @@ export default function ApplicationsPage() {
 
     const handleResumeVariantChange = async (id: string, resumeVariantId: string) => {
         try {
-            await updateResumeVariant.mutateAsync({ id, resumeVariantId });
+            await resumeVariantMutation.mutateAsync({ id, resumeVariantId });
         } catch (error) {
-            toast.error('Failed to link CV variant');
+            // Error already handled in mutation
         }
     };
 

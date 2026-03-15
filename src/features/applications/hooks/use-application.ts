@@ -2,8 +2,8 @@ import { useQuery } from '@tanstack/react-query';
 import { applicationService } from '@/services/application-service';
 
 export const JOB_APPLICATION_KEYS = {
-    all: ['job-application'] as const,
-    detail: (id: string) => [...JOB_APPLICATION_KEYS.all, id] as const,
+    all: ['job-applications'] as const,
+    detail: (id: string) => [...JOB_APPLICATION_KEYS.all, 'detail', id] as const,
 };
 
 export function useApplication(id: string) {

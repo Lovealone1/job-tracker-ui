@@ -50,9 +50,11 @@ export default function Home() {
                 Login
               </Button>
             </Link>
-            <Button className="bg-white text-black hover:bg-zinc-200 font-black text-xs uppercase tracking-widest px-6 h-9 rounded-full transition-all">
-              Register
-            </Button>
+            <Link href="/register">
+              <Button className="bg-white text-black hover:bg-zinc-200 font-black text-xs uppercase tracking-widest px-6 h-9 rounded-full transition-all">
+                Register
+              </Button>
+            </Link>
           </div>
         </div>
       </header>

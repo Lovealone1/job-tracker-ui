@@ -7,9 +7,11 @@ import {
     ReminderStatus,
     ReminderType,
 } from '@/types/reminder';
+import { useNotification } from '@/providers/notification-provider';
 
 export function useReminderMutations() {
     const queryClient = useQueryClient();
+    const { showSuccess, showError } = useNotification();
 
     const invalidateAll = () => {
         queryClient.invalidateQueries({ queryKey: REMINDERS_KEYS.all });
@@ -17,44 +19,70 @@ export function useReminderMutations() {
 
     const createMutation = useMutation({
         mutationFn: (data: CreateReminderDto) => reminderService.create(data),
-        onSuccess: invalidateAll,
+        onSuccess: () => {
+            invalidateAll();
+            showSuccess('Reminder created successfully');
+        },
+        onError: () => showError('Failed to create reminder'),
     });
 
     const updateMutation = useMutation({
         mutationFn: ({ id, data }: { id: string; data: UpdateReminderDto }) =>
             reminderService.update(id, data),
-        onSuccess: invalidateAll,
+        onSuccess: () => {
+            invalidateAll();
+            showSuccess('Reminder updated successfully');
+        },
+        onError: () => showError('Failed to update reminder'),
     });
 
     const updateStatusMutation = useMutation({
         mutationFn: ({ id, status }: { id: string; status: ReminderStatus }) =>
             reminderService.updateStatus(id, status),
-        onSuccess: invalidateAll,
+        onSuccess: () => {
+            invalidateAll();
+            showSuccess('Reminder status updated');
+        },
+        onError: () => showError('Failed to update reminder status'),
     });
 
     const updateTypeMutation = useMutation({
         mutationFn: ({ id, type }: { id: string; type: ReminderType }) =>
             reminderService.updateType(id, type),
-        onSuccess: invalidateAll,
+        onSuccess: () => {
+            invalidateAll();
+            showSuccess('Reminder type updated');
+        },
+        onError: () => showError('Failed to update reminder type'),
     });
 
     const rescheduleMutation = useMutation({
         mutationFn: ({ id, dueAt }: { id: string; dueAt: string }) =>
             reminderService.reschedule(id, dueAt),
-        onSuccess: invalidateAll,
+        onSuccess: () => {
+            invalidateAll();
+            showSuccess('Reminder rescheduled successfully');
+        },
+        onError: () => showError('Failed to reschedule reminder'),
     });
 
     const deleteMutation = useMutation({
         mutationFn: (id: string) => reminderService.delete(id),
-        onSuccess: invalidateAll,
+        onSuccess: (_, deletedId) => {
+            // Remove specific detail query from cache immediately to avoid 404 re-fetches
+            queryClient.removeQueries({ queryKey: REMINDERS_KEYS.detail(deletedId) });
+            invalidateAll();
+            showSuccess('Reminder deleted successfully');
+        },
+        onError: () => showError('Failed to delete reminder'),
     });
 
     return {
         createReminder: createMutation,
         updateReminder: updateMutation,
-        updateStatus: updateStatusMutation,
-        updateType: updateTypeMutation,
-        rescheduleReminder: rescheduleMutation,
+        statusMutation: updateStatusMutation,
+        typeMutation: updateTypeMutation,
+        rescheduleMutation,
         deleteReminder: deleteMutation,
     };
 }
