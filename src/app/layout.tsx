@@ -14,8 +14,24 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Job Tracker",
-  description: "Track your job applications, interviews, and career progress.",
+  title: {
+    default: "Job Tracker | Premium Career Assistant",
+    template: "%s | Job Tracker",
+  },
+  description: "Accelerate your career with Job Tracker. Automate your job applications, track interviews, and generate premium LaTeX resumes with our glassmorphic dashboard.",
+  keywords: ["job tracker", "career management", "resume builder", "interview tracker", "job application", "professional dashboard"],
+  authors: [{ name: "Job Tracker Team" }],
+  creator: "Job Tracker Team",
+  publisher: "Job Tracker",
+  formatDetection: {
+    email: false,
+    address: false,
+    telephone: false,
+  },
+  icons: {
+    icon: "/icon.svg",
+    apple: "/icon.svg",
+  },
 };
 
 export default function RootLayout({
