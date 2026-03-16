@@ -56,7 +56,8 @@ export function ResumeEditor({ initialData, onSave }: ResumeEditorProps) {
             experience: [],
             projects: [],
             skills: {},
-            others: {}
+            others: {},
+            language: 'en'
         };
         
         if (!initialData) return defaults;
@@ -124,6 +125,26 @@ export function ResumeEditor({ initialData, onSave }: ResumeEditorProps) {
                     </div>
                 </div>
                 <div className="flex items-center gap-1.5 shrink-0">
+                    <div className="flex bg-zinc-200 dark:bg-zinc-800 rounded-xl p-0.5 gap-0.5 mr-1">
+                        <button 
+                            onClick={() => setResumeData({...resumeData, language: 'en'})}
+                            className={cn(
+                                "px-2 py-1 rounded-[10px] text-[8px] font-black uppercase tracking-widest transition-all", 
+                                (resumeData.language === 'en' || !resumeData.language) ? "bg-white dark:bg-zinc-950 text-[#A600FF] shadow-sm" : "text-zinc-500"
+                            )}
+                        >
+                            EN
+                        </button>
+                        <button 
+                            onClick={() => setResumeData({...resumeData, language: 'es'})}
+                            className={cn(
+                                "px-2 py-1 rounded-[10px] text-[8px] font-black uppercase tracking-widest transition-all", 
+                                resumeData.language === 'es' ? "bg-white dark:bg-zinc-950 text-[#A600FF] shadow-sm" : "text-zinc-500"
+                            )}
+                        >
+                            ES
+                        </button>
+                    </div>
                     <button 
                         onClick={async () => {
                             try {
@@ -186,6 +207,28 @@ export function ResumeEditor({ initialData, onSave }: ResumeEditorProps) {
                             ))}
                         </select>
                         <ChevronDown className="w-3 h-3 text-zinc-400 ml-[-12px] pointer-events-none" />
+                    </div>
+
+                    {/* Language Selector */}
+                    <div className="flex bg-zinc-100 dark:bg-zinc-900 rounded-xl p-1 gap-1 mr-2 border border-transparent hover:border-zinc-200 dark:hover:border-zinc-800 transition-all">
+                        <button 
+                            onClick={() => setResumeData({...resumeData, language: 'en'})}
+                            className={cn(
+                                "px-2 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all", 
+                                (resumeData.language === 'en' || !resumeData.language) ? "bg-white dark:bg-zinc-950 text-[#A600FF] shadow-sm" : "text-zinc-400"
+                            )}
+                        >
+                            EN
+                        </button>
+                        <button 
+                            onClick={() => setResumeData({...resumeData, language: 'es'})}
+                            className={cn(
+                                "px-2 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all", 
+                                resumeData.language === 'es' ? "bg-white dark:bg-zinc-950 text-[#A600FF] shadow-sm" : "text-zinc-400"
+                            )}
+                        >
+                            ES
+                        </button>
                     </div>
 
                     <div className="flex bg-zinc-100 dark:bg-zinc-900 rounded-xl p-1 gap-1 mr-4">
