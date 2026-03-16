@@ -49,6 +49,7 @@ export interface Resume {
     projects?: ProjectEntry[];
     skills?: Record<string, string[]>;
     others?: Record<string, any>;
+    language?: string;
     createdAt: string;
     updatedAt: string;
 }
@@ -73,6 +74,7 @@ export interface ResumeVariant {
     matchScore?: number;
     pdfUrl?: string;
     template?: string;
+    language?: string;
     createdAt: string;
     updatedAt: string;
 }
@@ -89,6 +91,7 @@ export interface CreateResumeDto {
     projects?: ProjectEntry[];
     skills?: Record<string, string[]>;
     others?: Record<string, any>;
+    language?: string;
 }
 
 export interface UpdateResumeDto extends Partial<CreateResumeDto> {}
@@ -109,6 +112,7 @@ export interface CreateResumeVariantDto {
     generatedWithAI?: boolean;
     atsScore?: number;
     matchScore?: number;
+    language?: string;
 }
 
 export interface UpdateResumeVariantDto extends Partial<Omit<CreateResumeVariantDto, 'resumeId'>> {

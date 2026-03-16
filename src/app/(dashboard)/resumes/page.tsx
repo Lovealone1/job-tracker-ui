@@ -98,7 +98,7 @@ export default function ResumesPage() {
                 const updated = await updateVariant.mutateAsync({ id: selectedItem.id, data: updateData });
                 setSelectedItem(updated);
             } else {
-                const { id, profileId, createdAt, updatedAt, _type, ...updateData } = data;
+                const { id, profileId, createdAt, updatedAt, slug, _type, ...updateData } = data;
                 const updated = await updateResume.mutateAsync({ id: selectedItem.id, data: updateData });
                 setSelectedItem(updated);
             }
