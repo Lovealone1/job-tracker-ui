@@ -23,6 +23,50 @@ export interface ProjectEntry {
     description: string;
     url?: string;
     technologies?: string[];
+    startDate?: string;
+    endDate?: string;
+    current?: boolean;
+    location?: string;
+    highlights?: string[];
+}
+
+export interface PublicationEntry {
+    title: string;
+    authors: string | string[];
+    doi?: string;
+    journal?: string;
+    conference?: string;
+    date?: string;
+    description?: string;
+}
+
+export interface CertificationEntry {
+    name: string;
+    issuer?: string;
+    date?: string;
+    description?: string;
+}
+
+export interface HonorEntry {
+    name: string;
+    issuer?: string;
+    date?: string;
+    description?: string;
+}
+
+export interface PatentEntry {
+    title: string;
+    issuer?: string;
+    date?: string;
+    description?: string;
+}
+
+export interface TalkEntry {
+    title: string;
+    venue?: string;
+    location?: string;
+    date?: string;
+    description?: string;
 }
 
 export interface ResumePersonalInfo {
@@ -47,6 +91,11 @@ export interface Resume {
     education: EducationEntry[];
     experience: ExperienceEntry[];
     projects?: ProjectEntry[];
+    publications?: PublicationEntry[];
+    certifications?: CertificationEntry[];
+    honors?: HonorEntry[];
+    patents?: PatentEntry[];
+    talks?: TalkEntry[];
     skills?: Record<string, string[]>;
     others?: Record<string, any>;
     language?: string;
@@ -65,6 +114,11 @@ export interface ResumeVariant {
     education?: EducationEntry[];
     experience?: ExperienceEntry[];
     projects?: ProjectEntry[];
+    publications?: PublicationEntry[];
+    certifications?: CertificationEntry[];
+    honors?: HonorEntry[];
+    patents?: PatentEntry[];
+    talks?: TalkEntry[];
     skills?: Record<string, string[]>;
     others?: Record<string, any>;
     modifications?: Record<string, any>;
@@ -89,6 +143,11 @@ export interface CreateResumeDto {
     education: EducationEntry[];
     experience: ExperienceEntry[];
     projects?: ProjectEntry[];
+    publications?: PublicationEntry[];
+    certifications?: CertificationEntry[];
+    honors?: HonorEntry[];
+    patents?: PatentEntry[];
+    talks?: TalkEntry[];
     skills?: Record<string, string[]>;
     others?: Record<string, any>;
     language?: string;
@@ -106,6 +165,11 @@ export interface CreateResumeVariantDto {
     education?: EducationEntry[];
     experience?: ExperienceEntry[];
     projects?: ProjectEntry[];
+    publications?: PublicationEntry[];
+    certifications?: CertificationEntry[];
+    honors?: HonorEntry[];
+    patents?: PatentEntry[];
+    talks?: TalkEntry[];
     skills?: Record<string, string[]>;
     others?: Record<string, any>;
     notes?: string;
