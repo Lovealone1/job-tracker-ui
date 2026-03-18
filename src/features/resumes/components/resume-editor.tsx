@@ -21,6 +21,11 @@ import {
     RefreshCcw,
     Lock,
     Menu,
+    Award,
+    BookOpen,
+    Lightbulb,
+    Mic2,
+    Star,
     X as CloseIcon
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -35,12 +40,13 @@ interface ResumeEditorProps {
     onSave: (data: any, options?: { exit?: boolean }) => Promise<void>;
 }
 
-type EditorSection = 'personal' | 'summary' | 'experience' | 'education' | 'projects' | 'skills' | 'others';
+type EditorSection = 'personal' | 'summary' | 'education' | 'experience' | 'projects' | 'skills' | 'extras';
 
 export function ResumeEditor({ initialData, onSave }: ResumeEditorProps) {
     const isVariant = initialData && 'resumeId' in initialData;
     
     const [activeSection, setActiveSection] = useState<EditorSection>('personal');
+    const [activeExtra, setActiveExtra] = useState<string>('publications');
     const [viewMode, setViewMode] = useState<'real' | 'yaml'>('yaml');
     const [renderLoading, setRenderLoading] = useState(false);
     const [pageCount, setPageCount] = useState(1);
@@ -55,6 +61,11 @@ export function ResumeEditor({ initialData, onSave }: ResumeEditorProps) {
             education: [],
             experience: [],
             projects: [],
+            publications: [],
+            certifications: [],
+            honors: [],
+            patents: [],
+            talks: [],
             skills: {},
             others: {},
             language: 'en'
@@ -100,7 +111,15 @@ export function ResumeEditor({ initialData, onSave }: ResumeEditorProps) {
         { id: 'experience', label: 'Experience', icon: Briefcase },
         { id: 'projects', label: 'Projects', icon: Code },
         { id: 'skills', label: 'Skills', icon: Layers },
-        { id: 'others', label: 'Custom Sections', icon: Settings },
+        { id: 'extras', label: 'Additional Sections', icon: Settings },
+    ];
+
+    const extraSections = [
+        { id: 'publications', label: 'Publications', icon: BookOpen },
+        { id: 'certifications', label: 'Certifications', icon: Award },
+        { id: 'honors', label: 'Honors', icon: Star },
+        { id: 'patents', label: 'Patents', icon: Lightbulb },
+        { id: 'talks', label: 'Talks', icon: Mic2 },
     ];
 
     return (
@@ -381,11 +400,33 @@ export function ResumeEditor({ initialData, onSave }: ResumeEditorProps) {
                                 )}
                             </div>
                             <p className="text-zinc-500 text-xs md:text-sm">
-                                {isVariant && ['personal', 'summary', 'education'].includes(activeSection)
-                                    ? "These sections are inherited from the base resume and cannot be modified in a variant."
-                                    : `Fill in the details for your resume ${activeSection.toLowerCase()}.`}
+                                {activeSection === 'extras' 
+                                    ? "Add specialized sections to your resume (optional)."
+                                    : (isVariant && ['personal', 'summary', 'education'].includes(activeSection)
+                                        ? "These sections are inherited from the base resume and cannot be modified in a variant."
+                                        : `Fill in the details for your resume ${activeSection.toLowerCase()}.`)}
                             </p>
                         </div>
+
+                        {activeSection === 'extras' && (
+                            <div className="flex flex-wrap gap-2 p-1 bg-zinc-100 dark:bg-zinc-900 rounded-2xl w-fit">
+                                {extraSections.map((extra) => (
+                                    <button
+                                        key={extra.id}
+                                        onClick={() => setActiveExtra(extra.id)}
+                                        className={cn(
+                                            "flex items-center gap-2 px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all",
+                                            activeExtra === extra.id 
+                                                ? "bg-white dark:bg-zinc-950 text-[#A600FF] shadow-sm"
+                                                : "text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300"
+                                        )}
+                                    >
+                                        <extra.icon className={cn("w-3 h-3", activeExtra === extra.id ? "text-[#A600FF]" : "text-zinc-400")} />
+                                        {extra.label}
+                                    </button>
+                                ))}
+                            </div>
+                        )}
 
                         {/* Rendering Active Form Section */}
                         <div className="space-y-6 pt-6">
@@ -694,19 +735,74 @@ export function ResumeEditor({ initialData, onSave }: ResumeEditorProps) {
                                                         value={proj.name}
                                                         onChange={(e) => {
                                                             const newProj = [...resumeData.projects];
-                                                            newProj[index].name = e.target.value;
+                                                            newProj[index] = { ...newProj[index], name: e.target.value };
+                                                            setResumeData({...resumeData, projects: newProj});
+                                                        }}
+                                                    />
+                                                </div>
+                                                <div className="space-y-1">
+                                                    <label className="text-[10px] font-black uppercase tracking-widest text-zinc-400">Start Date</label>
+                                                    <input 
+                                                        className="w-full bg-white dark:bg-zinc-950 border border-transparent focus:border-[#A600FF] p-3 rounded-xl outline-none text-sm transition-all"
+                                                        placeholder="e.g. 2023-01"
+                                                        value={proj.startDate || ''}
+                                                        onChange={(e) => {
+                                                            const newProj = [...resumeData.projects];
+                                                            newProj[index] = { ...newProj[index], startDate: e.target.value };
+                                                            setResumeData({...resumeData, projects: newProj});
+                                                        }}
+                                                    />
+                                                </div>
+                                                <div className="space-y-1">
+                                                    <div className="flex items-center justify-between">
+                                                        <label className="text-[10px] font-black uppercase tracking-widest text-zinc-400">End Date</label>
+                                                        <label className="flex items-center gap-1 cursor-pointer">
+                                                            <input 
+                                                                type="checkbox"
+                                                                className="w-3 h-3 rounded bg-zinc-200 dark:bg-zinc-800 border-none text-[#A600FF] focus:ring-[#A600FF]"
+                                                                checked={proj.current || false}
+                                                                onChange={(e) => {
+                                                                    const newProj = [...resumeData.projects];
+                                                                    newProj[index] = { ...newProj[index], current: e.target.checked };
+                                                                    setResumeData({...resumeData, projects: newProj});
+                                                                }}
+                                                            />
+                                                            <span className="text-[8px] font-black uppercase tracking-widest text-zinc-500">Current</span>
+                                                        </label>
+                                                    </div>
+                                                    <input 
+                                                        className="w-full bg-white dark:bg-zinc-950 border border-transparent focus:border-[#A600FF] p-3 rounded-xl outline-none text-sm transition-all disabled:opacity-50"
+                                                        placeholder="e.g. 2023-06"
+                                                        value={proj.endDate || ''}
+                                                        disabled={proj.current}
+                                                        onChange={(e) => {
+                                                            const newProj = [...resumeData.projects];
+                                                            newProj[index] = { ...newProj[index], endDate: e.target.value };
+                                                            setResumeData({...resumeData, projects: newProj});
+                                                        }}
+                                                    />
+                                                </div>
+                                                <div className="space-y-1 col-span-2">
+                                                    <label className="text-[10px] font-black uppercase tracking-widest text-zinc-400">Location</label>
+                                                    <input 
+                                                        className="w-full bg-white dark:bg-zinc-950 border border-transparent focus:border-[#A600FF] p-3 rounded-xl outline-none text-sm transition-all"
+                                                        value={proj.location || ''}
+                                                        onChange={(e) => {
+                                                            const newProj = [...resumeData.projects];
+                                                            newProj[index] = { ...newProj[index], location: e.target.value };
                                                             setResumeData({...resumeData, projects: newProj});
                                                         }}
                                                     />
                                                 </div>
                                                 <div className="space-y-1 col-span-2">
                                                     <label className="text-[10px] font-black uppercase tracking-widest text-zinc-400">Description</label>
-                                                    <input 
-                                                        className="w-full bg-white dark:bg-zinc-950 border border-transparent focus:border-[#A600FF] p-3 rounded-xl outline-none text-sm transition-all"
+                                                    <textarea 
+                                                        rows={2}
+                                                        className="w-full bg-white dark:bg-zinc-950 border border-transparent focus:border-[#A600FF] p-3 rounded-xl outline-none text-sm transition-all resize-none"
                                                         value={proj.description}
                                                         onChange={(e) => {
                                                             const newProj = [...resumeData.projects];
-                                                            newProj[index].description = e.target.value;
+                                                            newProj[index] = { ...newProj[index], description: e.target.value };
                                                             setResumeData({...resumeData, projects: newProj});
                                                         }}
                                                     />
@@ -718,7 +814,7 @@ export function ResumeEditor({ initialData, onSave }: ResumeEditorProps) {
                                                         value={proj.technologies?.join(', ') || ''}
                                                         onChange={(e) => {
                                                             const newProj = [...resumeData.projects];
-                                                            newProj[index].technologies = e.target.value.split(',').map(s => s.trim());
+                                                            newProj[index] = { ...newProj[index], technologies: e.target.value.split(',').map(s => s.trim()) };
                                                             setResumeData({...resumeData, projects: newProj});
                                                         }}
                                                     />
@@ -727,7 +823,7 @@ export function ResumeEditor({ initialData, onSave }: ResumeEditorProps) {
                                         </div>
                                     ))}
                                     <button 
-                                        onClick={() => setResumeData({...resumeData, projects: [...resumeData.projects, { name: '', description: '', technologies: [] }]})}
+                                        onClick={() => setResumeData({...resumeData, projects: [...resumeData.projects, { name: '', description: '', technologies: [], startDate: '', endDate: '', current: false }]})}
                                         className="w-full py-4 border-2 border-dashed border-zinc-200 dark:border-zinc-800 rounded-3xl flex items-center justify-center gap-2 text-zinc-400 hover:text-[#A600FF] hover:border-[#A600FF]/50 transition-all font-bold"
                                     >
                                         <Plus className="w-5 h-5" />
@@ -797,10 +893,335 @@ export function ResumeEditor({ initialData, onSave }: ResumeEditorProps) {
                                 </div>
                             )}
 
-                            {activeSection === 'others' && (
-                                <div className="flex flex-col items-center justify-center p-12 border-2 border-dashed border-zinc-200 dark:border-zinc-800 rounded-3xl opacity-50">
-                                    <Plus className="w-8 h-8 text-[#A600FF] mb-4" />
-                                    <p className="text-zinc-500 font-bold">Custom sections coming soon.</p>
+                            {activeSection === 'extras' && activeExtra === 'publications' && (
+                                <div className="space-y-6">
+                                    {resumeData.publications?.map((pub: any, index: number) => (
+                                        <div key={index} className="p-6 bg-zinc-50 dark:bg-zinc-900/50 rounded-3xl border border-zinc-200 dark:border-zinc-800 space-y-4 relative">
+                                            <button 
+                                                onClick={() => {
+                                                    const newPubs = [...resumeData.publications];
+                                                    newPubs.splice(index, 1);
+                                                    setResumeData({...resumeData, publications: newPubs});
+                                                }}
+                                                className="absolute top-4 right-4 p-2 text-zinc-400 hover:text-red-500 transition-colors"
+                                            >
+                                                <Trash2 className="w-4 h-4" />
+                                            </button>
+                                            <div className="grid grid-cols-2 gap-4">
+                                                <div className="space-y-1 col-span-2">
+                                                    <label className="text-[10px] font-black uppercase tracking-widest text-zinc-400">Title</label>
+                                                    <input 
+                                                        className="w-full bg-white dark:bg-zinc-950 border border-transparent focus:border-[#A600FF] p-3 rounded-xl outline-none text-sm transition-all"
+                                                        value={pub.title}
+                                                        onChange={(e) => {
+                                                            const newPubs = [...resumeData.publications];
+                                                            newPubs[index] = { ...newPubs[index], title: e.target.value };
+                                                            setResumeData({...resumeData, publications: newPubs});
+                                                        }}
+                                                    />
+                                                </div>
+                                                <div className="space-y-1 col-span-2">
+                                                    <label className="text-[10px] font-black uppercase tracking-widest text-zinc-400">Authors</label>
+                                                    <input 
+                                                        className="w-full bg-white dark:bg-zinc-950 border border-transparent focus:border-[#A600FF] p-3 rounded-xl outline-none text-sm transition-all"
+                                                        value={pub.authors}
+                                                        onChange={(e) => {
+                                                            const newPubs = [...resumeData.publications];
+                                                            newPubs[index] = { ...newPubs[index], authors: e.target.value };
+                                                            setResumeData({...resumeData, publications: newPubs});
+                                                        }}
+                                                    />
+                                                </div>
+                                                <div className="space-y-1">
+                                                    <label className="text-[10px] font-black uppercase tracking-widest text-zinc-400">Journal / Conference</label>
+                                                    <input 
+                                                        className="w-full bg-white dark:bg-zinc-950 border border-transparent focus:border-[#A600FF] p-3 rounded-xl outline-none text-sm transition-all"
+                                                        value={pub.journal || ''}
+                                                        onChange={(e) => {
+                                                            const newPubs = [...resumeData.publications];
+                                                            newPubs[index] = { ...newPubs[index], journal: e.target.value };
+                                                            setResumeData({...resumeData, publications: newPubs});
+                                                        }}
+                                                    />
+                                                </div>
+                                                <div className="space-y-1">
+                                                    <label className="text-[10px] font-black uppercase tracking-widest text-zinc-400">Date</label>
+                                                    <input 
+                                                        className="w-full bg-white dark:bg-zinc-950 border border-transparent focus:border-[#A600FF] p-3 rounded-xl outline-none text-sm transition-all"
+                                                        value={pub.date || ''}
+                                                        onChange={(e) => {
+                                                            const newPubs = [...resumeData.publications];
+                                                            newPubs[index] = { ...newPubs[index], date: e.target.value };
+                                                            setResumeData({...resumeData, publications: newPubs});
+                                                        }}
+                                                    />
+                                                </div>
+                                            </div>
+                                        </div>
+                                    ))}
+                                    <button 
+                                        onClick={() => setResumeData({...resumeData, publications: [...(resumeData.publications || []), { title: '', authors: '', journal: '', date: '' }]})}
+                                        className="w-full py-4 border-2 border-dashed border-zinc-200 dark:border-zinc-800 rounded-3xl flex items-center justify-center gap-2 text-zinc-400 hover:text-[#A600FF] hover:border-[#A600FF]/50 transition-all font-bold"
+                                    >
+                                        <Plus className="w-5 h-5" />
+                                        Add Publication
+                                    </button>
+                                </div>
+                            )}
+
+                            {activeSection === 'extras' && activeExtra === 'certifications' && (
+                                <div className="space-y-6">
+                                    {resumeData.certifications?.map((cert: any, index: number) => (
+                                        <div key={index} className="p-6 bg-zinc-50 dark:bg-zinc-900/50 rounded-3xl border border-zinc-200 dark:border-zinc-800 space-y-4 relative">
+                                            <button 
+                                                onClick={() => {
+                                                    const newCerts = [...resumeData.certifications];
+                                                    newCerts.splice(index, 1);
+                                                    setResumeData({...resumeData, certifications: newCerts});
+                                                }}
+                                                className="absolute top-4 right-4 p-2 text-zinc-400 hover:text-red-500 transition-colors"
+                                            >
+                                                <Trash2 className="w-4 h-4" />
+                                            </button>
+                                            <div className="grid grid-cols-2 gap-4">
+                                                <div className="space-y-1 col-span-2">
+                                                    <label className="text-[10px] font-black uppercase tracking-widest text-zinc-400">Name</label>
+                                                    <input 
+                                                        className="w-full bg-white dark:bg-zinc-950 border border-transparent focus:border-[#A600FF] p-3 rounded-xl outline-none text-sm transition-all"
+                                                        value={cert.name}
+                                                        onChange={(e) => {
+                                                            const newCerts = [...resumeData.certifications];
+                                                            newCerts[index] = { ...newCerts[index], name: e.target.value };
+                                                            setResumeData({...resumeData, certifications: newCerts});
+                                                        }}
+                                                    />
+                                                </div>
+                                                <div className="space-y-1">
+                                                    <label className="text-[10px] font-black uppercase tracking-widest text-zinc-400">Issuer</label>
+                                                    <input 
+                                                        className="w-full bg-white dark:bg-zinc-950 border border-transparent focus:border-[#A600FF] p-3 rounded-xl outline-none text-sm transition-all"
+                                                        value={cert.issuer || ''}
+                                                        onChange={(e) => {
+                                                            const newCerts = [...resumeData.certifications];
+                                                            newCerts[index] = { ...newCerts[index], issuer: e.target.value };
+                                                            setResumeData({...resumeData, certifications: newCerts});
+                                                        }}
+                                                    />
+                                                </div>
+                                                <div className="space-y-1">
+                                                    <label className="text-[10px] font-black uppercase tracking-widest text-zinc-400">Date</label>
+                                                    <input 
+                                                        className="w-full bg-white dark:bg-zinc-950 border border-transparent focus:border-[#A600FF] p-3 rounded-xl outline-none text-sm transition-all"
+                                                        value={cert.date || ''}
+                                                        onChange={(e) => {
+                                                            const newCerts = [...resumeData.certifications];
+                                                            newCerts[index] = { ...newCerts[index], date: e.target.value };
+                                                            setResumeData({...resumeData, certifications: newCerts});
+                                                        }}
+                                                    />
+                                                </div>
+                                            </div>
+                                        </div>
+                                    ))}
+                                    <button 
+                                        onClick={() => setResumeData({...resumeData, certifications: [...(resumeData.certifications || []), { name: '', issuer: '', date: '' }]})}
+                                        className="w-full py-4 border-2 border-dashed border-zinc-200 dark:border-zinc-800 rounded-3xl flex items-center justify-center gap-2 text-zinc-400 hover:text-[#A600FF] hover:border-[#A600FF]/50 transition-all font-bold"
+                                    >
+                                        <Plus className="w-5 h-5" />
+                                        Add Certification
+                                    </button>
+                                </div>
+                            )}
+
+                            {activeSection === 'extras' && activeExtra === 'honors' && (
+                                <div className="space-y-6">
+                                    {resumeData.honors?.map((honor: any, index: number) => (
+                                        <div key={index} className="p-6 bg-zinc-50 dark:bg-zinc-900/50 rounded-3xl border border-zinc-200 dark:border-zinc-800 space-y-4 relative">
+                                            <button 
+                                                onClick={() => {
+                                                    const newHonors = [...resumeData.honors];
+                                                    newHonors.splice(index, 1);
+                                                    setResumeData({...resumeData, honors: newHonors});
+                                                }}
+                                                className="absolute top-4 right-4 p-2 text-zinc-400 hover:text-red-500 transition-colors"
+                                            >
+                                                <Trash2 className="w-4 h-4" />
+                                            </button>
+                                            <div className="grid grid-cols-2 gap-4">
+                                                <div className="space-y-1 col-span-2">
+                                                    <label className="text-[10px] font-black uppercase tracking-widest text-zinc-400">Award/Honor Name</label>
+                                                    <input 
+                                                        className="w-full bg-white dark:bg-zinc-950 border border-transparent focus:border-[#A600FF] p-3 rounded-xl outline-none text-sm transition-all"
+                                                        value={honor.name}
+                                                        onChange={(e) => {
+                                                            const newHonors = [...resumeData.honors];
+                                                            newHonors[index] = { ...newHonors[index], name: e.target.value };
+                                                            setResumeData({...resumeData, honors: newHonors});
+                                                        }}
+                                                    />
+                                                </div>
+                                                <div className="space-y-1">
+                                                    <label className="text-[10px] font-black uppercase tracking-widest text-zinc-400">Issuer</label>
+                                                    <input 
+                                                        className="w-full bg-white dark:bg-zinc-950 border border-transparent focus:border-[#A600FF] p-3 rounded-xl outline-none text-sm transition-all"
+                                                        value={honor.issuer || ''}
+                                                        onChange={(e) => {
+                                                            const newHonors = [...resumeData.honors];
+                                                            newHonors[index] = { ...newHonors[index], issuer: e.target.value };
+                                                            setResumeData({...resumeData, honors: newHonors});
+                                                        }}
+                                                    />
+                                                </div>
+                                                <div className="space-y-1">
+                                                    <label className="text-[10px] font-black uppercase tracking-widest text-zinc-400">Date</label>
+                                                    <input 
+                                                        className="w-full bg-white dark:bg-zinc-950 border border-transparent focus:border-[#A600FF] p-3 rounded-xl outline-none text-sm transition-all"
+                                                        value={honor.date || ''}
+                                                        onChange={(e) => {
+                                                            const newHonors = [...resumeData.honors];
+                                                            newHonors[index] = { ...newHonors[index], date: e.target.value };
+                                                            setResumeData({...resumeData, honors: newHonors});
+                                                        }}
+                                                    />
+                                                </div>
+                                            </div>
+                                        </div>
+                                    ))}
+                                    <button 
+                                        onClick={() => setResumeData({...resumeData, honors: [...(resumeData.honors || []), { name: '', issuer: '', date: '' }]})}
+                                        className="w-full py-4 border-2 border-dashed border-zinc-200 dark:border-zinc-800 rounded-3xl flex items-center justify-center gap-2 text-zinc-400 hover:text-[#A600FF] hover:border-[#A600FF]/50 transition-all font-bold"
+                                    >
+                                        <Plus className="w-5 h-5" />
+                                        Add Honor/Award
+                                    </button>
+                                </div>
+                            )}
+
+                            {activeSection === 'extras' && activeExtra === 'patents' && (
+                                <div className="space-y-6">
+                                    {resumeData.patents?.map((patent: any, index: number) => (
+                                        <div key={index} className="p-6 bg-zinc-50 dark:bg-zinc-900/50 rounded-3xl border border-zinc-200 dark:border-zinc-800 space-y-4 relative">
+                                            <button 
+                                                onClick={() => {
+                                                    const newPatents = [...resumeData.patents];
+                                                    newPatents.splice(index, 1);
+                                                    setResumeData({...resumeData, patents: newPatents});
+                                                }}
+                                                className="absolute top-4 right-4 p-2 text-zinc-400 hover:text-red-500 transition-colors"
+                                            >
+                                                <Trash2 className="w-4 h-4" />
+                                            </button>
+                                            <div className="grid grid-cols-2 gap-4">
+                                                <div className="space-y-1 col-span-2">
+                                                    <label className="text-[10px] font-black uppercase tracking-widest text-zinc-400">Patent Title</label>
+                                                    <input 
+                                                        className="w-full bg-white dark:bg-zinc-950 border border-transparent focus:border-[#A600FF] p-3 rounded-xl outline-none text-sm transition-all"
+                                                        value={patent.title}
+                                                        onChange={(e) => {
+                                                            const newPatents = [...resumeData.patents];
+                                                            newPatents[index] = { ...newPatents[index], title: e.target.value };
+                                                            setResumeData({...resumeData, patents: newPatents});
+                                                        }}
+                                                    />
+                                                </div>
+                                                <div className="space-y-1">
+                                                    <label className="text-[10px] font-black uppercase tracking-widest text-zinc-400">Issuer/Authority</label>
+                                                    <input 
+                                                        className="w-full bg-white dark:bg-zinc-950 border border-transparent focus:border-[#A600FF] p-3 rounded-xl outline-none text-sm transition-all"
+                                                        value={patent.issuer || ''}
+                                                        onChange={(e) => {
+                                                            const newPatents = [...resumeData.patents];
+                                                            newPatents[index] = { ...newPatents[index], issuer: e.target.value };
+                                                            setResumeData({...resumeData, patents: newPatents});
+                                                        }}
+                                                    />
+                                                </div>
+                                                <div className="space-y-1">
+                                                    <label className="text-[10px] font-black uppercase tracking-widest text-zinc-400">Date</label>
+                                                    <input 
+                                                        className="w-full bg-white dark:bg-zinc-950 border border-transparent focus:border-[#A600FF] p-3 rounded-xl outline-none text-sm transition-all"
+                                                        value={patent.date || ''}
+                                                        onChange={(e) => {
+                                                            const newPatents = [...resumeData.patents];
+                                                            newPatents[index] = { ...newPatents[index], date: e.target.value };
+                                                            setResumeData({...resumeData, patents: newPatents});
+                                                        }}
+                                                    />
+                                                </div>
+                                            </div>
+                                        </div>
+                                    ))}
+                                    <button 
+                                        onClick={() => setResumeData({...resumeData, patents: [...(resumeData.patents || []), { title: '', issuer: '', date: '' }]})}
+                                        className="w-full py-4 border-2 border-dashed border-zinc-200 dark:border-zinc-800 rounded-3xl flex items-center justify-center gap-2 text-zinc-400 hover:text-[#A600FF] hover:border-[#A600FF]/50 transition-all font-bold"
+                                    >
+                                        <Plus className="w-5 h-5" />
+                                        Add Patent
+                                    </button>
+                                </div>
+                            )}
+
+                            {activeSection === 'extras' && activeExtra === 'talks' && (
+                                <div className="space-y-6">
+                                    {resumeData.talks?.map((talk: any, index: number) => (
+                                        <div key={index} className="p-6 bg-zinc-50 dark:bg-zinc-900/50 rounded-3xl border border-zinc-200 dark:border-zinc-800 space-y-4 relative">
+                                            <button 
+                                                onClick={() => {
+                                                    const newTalks = [...resumeData.talks];
+                                                    newTalks.splice(index, 1);
+                                                    setResumeData({...resumeData, talks: newTalks});
+                                                }}
+                                                className="absolute top-4 right-4 p-2 text-zinc-400 hover:text-red-500 transition-colors"
+                                            >
+                                                <Trash2 className="w-4 h-4" />
+                                            </button>
+                                            <div className="grid grid-cols-2 gap-4">
+                                                <div className="space-y-1 col-span-2">
+                                                    <label className="text-[10px] font-black uppercase tracking-widest text-zinc-400">Talk Title</label>
+                                                    <input 
+                                                        className="w-full bg-white dark:bg-zinc-950 border border-transparent focus:border-[#A600FF] p-3 rounded-xl outline-none text-sm transition-all"
+                                                        value={talk.title}
+                                                        onChange={(e) => {
+                                                            const newTalks = [...resumeData.talks];
+                                                            newTalks[index] = { ...newTalks[index], title: e.target.value };
+                                                            setResumeData({...resumeData, talks: newTalks});
+                                                        }}
+                                                    />
+                                                </div>
+                                                <div className="space-y-1">
+                                                    <label className="text-[10px] font-black uppercase tracking-widest text-zinc-400">Venue</label>
+                                                    <input 
+                                                        className="w-full bg-white dark:bg-zinc-950 border border-transparent focus:border-[#A600FF] p-3 rounded-xl outline-none text-sm transition-all"
+                                                        value={talk.venue || ''}
+                                                        onChange={(e) => {
+                                                            const newTalks = [...resumeData.talks];
+                                                            newTalks[index] = { ...newTalks[index], venue: e.target.value };
+                                                            setResumeData({...resumeData, talks: newTalks});
+                                                        }}
+                                                    />
+                                                </div>
+                                                <div className="space-y-1">
+                                                    <label className="text-[10px] font-black uppercase tracking-widest text-zinc-400">Date</label>
+                                                    <input 
+                                                        className="w-full bg-white dark:bg-zinc-950 border border-transparent focus:border-[#A600FF] p-3 rounded-xl outline-none text-sm transition-all"
+                                                        value={talk.date || ''}
+                                                        onChange={(e) => {
+                                                            const newTalks = [...resumeData.talks];
+                                                            newTalks[index] = { ...newTalks[index], date: e.target.value };
+                                                            setResumeData({...resumeData, talks: newTalks});
+                                                        }}
+                                                    />
+                                                </div>
+                                            </div>
+                                        </div>
+                                    ))}
+                                    <button 
+                                        onClick={() => setResumeData({...resumeData, talks: [...(resumeData.talks || []), { title: '', venue: '', date: '' }]})}
+                                        className="w-full py-4 border-2 border-dashed border-zinc-200 dark:border-zinc-800 rounded-3xl flex items-center justify-center gap-2 text-zinc-400 hover:text-[#A600FF] hover:border-[#A600FF]/50 transition-all font-bold"
+                                    >
+                                        <Plus className="w-5 h-5" />
+                                        Add Invited Talk
+                                    </button>
                                 </div>
                             )}
                         </div>

@@ -40,8 +40,38 @@ export function resumeToRenderCVYaml(resume: any): string {
                 })),
                 projects: resume.projects?.map((proj: any) => ({
                     name: proj.name,
+                    location: proj.location || undefined,
+                    start_date: proj.startDate || undefined,
+                    end_date: proj.endDate || (proj.current ? 'present' : undefined),
                     summary: proj.description || '',
-                    highlights: proj.technologies ? [`Built with: ${proj.technologies.join(', ')}`] : [],
+                    highlights: proj.highlights?.length > 0 ? proj.highlights : (proj.technologies ? [`Built with: ${proj.technologies.join(', ')}`] : []),
+                })),
+                publications: resume.publications?.map((pub: any) => ({
+                    title: pub.title,
+                    authors: Array.isArray(pub.authors) ? pub.authors : [pub.authors],
+                    doi: pub.doi || undefined,
+                    journal: pub.journal || pub.conference || undefined,
+                    date: pub.date || undefined,
+                })),
+                certifications: resume.certifications?.map((cert: any) => ({
+                    name: cert.name,
+                    date: cert.date || undefined,
+                    summary: cert.issuer ? (cert.description ? `${cert.issuer}\n\n${cert.description}` : cert.issuer) : cert.description,
+                })),
+                honors: resume.honors?.map((honor: any) => ({
+                    name: honor.name,
+                    issuer: honor.issuer || undefined,
+                    date: honor.date || undefined,
+                })),
+                patents: resume.patents?.map((patent: any) => ({
+                    title: patent.title,
+                    issuer: patent.issuer || undefined,
+                    date: patent.date || undefined,
+                })),
+                talks: resume.talks?.map((talk: any) => ({
+                    title: talk.title,
+                    venue: talk.venue || talk.location || undefined,
+                    date: talk.date || undefined,
                 })),
                 skills: resume.skills ? Object.entries(resume.skills).map(([category, items]) => ({
                     label: category,
@@ -54,7 +84,14 @@ export function resumeToRenderCVYaml(resume: any): string {
         }
     };
 
-    // Return as pretty JSON but with YAML-like spacing
+    // Clean up undefined sections
+    const sections = data.cv.sections;
+    Object.keys(sections).forEach(key => {
+        if ((sections as any)[key] === undefined || (Array.isArray((sections as any)[key]) && (sections as any)[key].length === 0)) {
+            delete (sections as any)[key];
+        }
+    });
+
     return JSON.stringify(data, null, 2);
 }
 
