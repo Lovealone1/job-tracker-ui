@@ -55,3 +55,14 @@ export function useWorkspaceProjectMutations() {
         isDeleting: deleteMutation.isPending,
     };
 }
+
+export function usePublicWorkspaceProject(username: string, slug: string) {
+    return useQuery({
+        queryKey: ['workspace-projects', 'public', username, slug],
+        queryFn: async () => {
+            return await workspaceProjectService.getPublicBySlug(username, slug);
+        },
+        enabled: !!username && !!slug,
+        staleTime: 5 * 60 * 1000, 
+    });
+}

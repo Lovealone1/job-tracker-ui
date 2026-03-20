@@ -30,27 +30,28 @@ export function ProjectEditor({ initialData, onSave, onClose }: ProjectEditorPro
     };
 
     return (
-        <div className="flex flex-col h-full bg-zinc-50 dark:bg-zinc-950">
-            <div className="flex items-center justify-between px-8 py-4 bg-white dark:bg-zinc-900 border-b border-zinc-200 dark:border-zinc-800">
-                <div className="flex items-center gap-4">
-                    <button onClick={onClose} className="p-2 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-lg transition-colors">
-                        <ChevronRight className="w-5 h-5 rotate-180" />
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-zinc-950/50 backdrop-blur-sm overflow-y-auto">
+            <div className="w-full max-w-[95vw] md:max-w-2xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl shadow-2xl animate-in fade-in zoom-in-95 duration-200 my-8 flex flex-col overflow-hidden">
+                <div className="flex items-center justify-between p-6 border-b border-zinc-100 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-900/50 backdrop-blur-md">
+                    <div className="flex items-center gap-4">
+                        <button onClick={onClose} className="p-2 hover:bg-zinc-200 dark:hover:bg-zinc-800 rounded-lg transition-colors text-zinc-500">
+                            <ChevronRight className="w-5 h-5 rotate-180" />
+                        </button>
+                        <h2 className="text-xl font-bold tracking-tight">
+                            {initialData?.id ? 'Edit Project' : 'Create Project'}
+                        </h2>
+                    </div>
+                    <button 
+                        onClick={handleSave}
+                        className="flex items-center gap-2 px-6 py-2.5 bg-[#A600FF] hover:bg-[#8B00D6] text-white rounded-xl text-sm font-bold shadow-lg shadow-[#A600FF]/25 transition-all"
+                    >
+                        <Save className="w-4 h-4" />
+                        Save Project
                     </button>
-                    <h2 className="text-xl font-bold tracking-tight">
-                        {initialData?.id ? 'Edit Project' : 'Create Project'}
-                    </h2>
                 </div>
-                <button 
-                    onClick={handleSave}
-                    className="flex items-center gap-2 px-6 py-2.5 bg-[#A600FF] hover:bg-[#8B00D6] text-white rounded-xl text-sm font-bold shadow-lg shadow-[#A600FF]/25 transition-all"
-                >
-                    <Save className="w-4 h-4" />
-                    Save Project
-                </button>
-            </div>
-            
-            <div className="flex-1 overflow-y-auto p-8 max-w-3xl mx-auto w-full space-y-6">
-                <div className="space-y-4 bg-white dark:bg-zinc-900 p-6 rounded-3xl border border-zinc-200 dark:border-zinc-800 shadow-sm">
+                
+                <div className="flex-1 overflow-y-auto p-6 space-y-6 max-h-[70vh] custom-scrollbar">
+                    <div className="space-y-4">
                     <div>
                         <label className="block text-xs font-bold uppercase tracking-wider text-zinc-500 mb-2">Project Name</label>
                         <input
@@ -123,6 +124,7 @@ export function ProjectEditor({ initialData, onSave, onClose }: ProjectEditorPro
                             className="w-full bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 focus:border-[#A600FF] focus:ring-2 focus:ring-[#A600FF]/20 p-3 rounded-xl outline-none transition-all"
                             placeholder="https://..."
                         />
+                    </div>
                     </div>
                 </div>
             </div>

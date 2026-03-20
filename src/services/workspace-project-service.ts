@@ -30,6 +30,11 @@ class WorkspaceProjectService {
     async delete(id: string): Promise<void> {
         await apiClient.delete(`${this.resource}/${id}`);
     }
+
+    async getPublicBySlug(username: string, slug: string): Promise<WorkspaceProject> {
+        const response = await apiClient.get(`${this.resource}/public/${username}/${slug}`);
+        return response.data;
+    }
 }
 
 export const workspaceProjectService = new WorkspaceProjectService();

@@ -10,8 +10,11 @@ import {
     Trash2,
     Clock,
     Github,
-    ExternalLink
+    ExternalLink,
+    Edit2
 } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { useCurrentUser } from '@/hooks/use-current-user';
 import { cn } from '@/lib/utils';
 import { useWorkspaceProjects, useWorkspaceProjectMutations } from '@/features/workspace/hooks/use-workspace-projects';
 import { WorkspaceProject } from '@/types/workspace-project';
@@ -25,6 +28,8 @@ const Badge = ({ children, className }: { children: React.ReactNode, className?:
 );
 
 export default function ProjectsPage() {
+    const router = useRouter();
+    const { data: user } = useCurrentUser();
     const { data: paginatedData, isLoading } = useWorkspaceProjects();
     const { createProject, updateProject, deleteProject } = useWorkspaceProjectMutations();
     
@@ -75,13 +80,11 @@ export default function ProjectsPage() {
 
     if (isEditing) {
         return (
-            <div className="fixed inset-0 z-50 bg-background overflow-hidden flex flex-col">
-                <ProjectEditor 
-                    initialData={selectedProject || undefined} 
-                    onSave={handleSave} 
-                    onClose={() => { setIsEditing(false); setSelectedProject(null); }}
-                />
-            </div>
+            <ProjectEditor 
+                initialData={selectedProject || undefined} 
+                onSave={handleSave} 
+                onClose={() => { setIsEditing(false); setSelectedProject(null); }}
+            />
         );
     }
 
@@ -182,10 +185,13 @@ export default function ProjectsPage() {
                                     <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity backdrop-blur-[2px] z-30 pointer-events-none">
                                         <div className="flex flex-col gap-2 scale-90 group-hover:scale-100 transition-transform pointer-events-auto">
                                             <button 
-                                                onClick={() => handleEdit(project)}
+                                                onClick={() => {
+                                                    const prefix = user?.email?.split('@')[0] || 'projects';
+                                                    router.push(`/${prefix}/${project.slug || project.id}`);
+                                                }}
                                                 className="bg-[#A600FF] text-white px-6 py-3 rounded-2xl shadow-xl font-black uppercase tracking-widest text-[10px] border border-[#A600FF]"
                                             >
-                                                Open Project
+                                                Open Board
                                             </button>
                                         </div>
                                     </div>
@@ -223,6 +229,13 @@ export default function ProjectsPage() {
                                                         <ExternalLink className="w-4 h-4" />
                                                     </a>
                                                 )}
+                                                <button 
+                                                    onClick={(e) => { e.stopPropagation(); handleEdit(project); }}
+                                                    className="p-2 text-zinc-400 hover:text-[#A600FF] transition-colors cursor-pointer pointer-events-auto"
+                                                    title="Edit Project"
+                                                >
+                                                    <Edit2 className="w-4 h-4" />
+                                                </button>
                                                 <button 
                                                     onClick={(e) => { e.stopPropagation(); handleDelete(project); }}
                                                     className="p-2 text-zinc-400 hover:text-red-500 transition-colors cursor-pointer pointer-events-auto"
