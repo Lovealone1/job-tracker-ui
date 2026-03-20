@@ -15,6 +15,7 @@ import {
     Moon,
     ChevronsLeft,
     LogOut,
+    FolderKanban,
 } from 'lucide-react';
 import { useSidebar } from './sidebar-context';
 import { useCurrentUser } from '@/hooks/use-current-user';
@@ -154,6 +155,41 @@ export function AppSidebar() {
                             </Link>
                         );
                     })}
+
+                    {/* NEW WORKSPACE SECTION */}
+                    <span
+                        className={`
+                            mt-6 mb-2 block px-3 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground whitespace-nowrap
+                            transition-all duration-300 ease-[cubic-bezier(0.4,0,0.2,1)]
+                            ${isCollapsed ? 'h-0 opacity-0 mb-0 mt-0 overflow-hidden' : 'h-auto opacity-100'}
+                        `}
+                    >
+                        Workspace
+                    </span>
+                    <Link
+                        href="/projects"
+                        title={isCollapsed ? 'Projects' : undefined}
+                        className={`
+                            group flex items-center rounded-lg px-3 py-2.5 text-sm font-medium overflow-hidden
+                            transition-all duration-200
+                            ${isCollapsed ? 'justify-center gap-0' : 'gap-3'}
+                            ${pathname === '/projects' || pathname.startsWith('/projects/')
+                                ? 'bg-sidebar-primary text-sidebar-primary-foreground shadow-sm'
+                                : 'text-muted-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground'
+                            }
+                        `}
+                    >
+                        <FolderKanban size={18} className="shrink-0" />
+                        <span
+                            className={`
+                                truncate whitespace-nowrap
+                                transition-all duration-300 ease-[cubic-bezier(0.4,0,0.2,1)]
+                                ${isCollapsed ? 'w-0 opacity-0' : 'w-auto opacity-100'}
+                            `}
+                        >
+                            Projects
+                        </span>
+                    </Link>
                 </div>
             </nav>
 
