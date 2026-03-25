@@ -75,22 +75,22 @@ function PortalDropdown<T extends string>({
     currentValue,
     onSelect,
     onClose,
-    anchorRef,
+    anchorElement,
     renderItem,
 }: {
     items: T[];
     currentValue: T;
     onSelect: (val: T) => void;
     onClose: () => void;
-    anchorRef: React.RefObject<HTMLElement | null>;
+    anchorElement: HTMLElement | null;
     renderItem: (val: T, isCurrent: boolean) => React.ReactNode;
 }) {
     const ref = useRef<HTMLDivElement>(null);
     const [pos, setPos] = useState({ top: 0, left: 0, width: 0 });
 
     useEffect(() => {
-        if (anchorRef.current) {
-            const rect = anchorRef.current.getBoundingClientRect();
+        if (anchorElement) {
+            const rect = anchorElement.getBoundingClientRect();
             // Add window scroll to positions
             setPos({ 
                 top: rect.bottom + window.scrollY + 4, 
@@ -98,18 +98,18 @@ function PortalDropdown<T extends string>({
                 width: Math.max(rect.width, 160)
             });
         }
-    }, [anchorRef]);
+    }, [anchorElement]);
 
     useEffect(() => {
         function handleClickOutside(e: MouseEvent) {
             if (ref.current && !ref.current.contains(e.target as Node) &&
-                anchorRef.current && !anchorRef.current.contains(e.target as Node)) {
+                anchorElement && !anchorElement.contains(e.target as Node)) {
                 onClose();
             }
         }
         document.addEventListener('mousedown', handleClickOutside);
         return () => document.removeEventListener('mousedown', handleClickOutside);
-    }, [onClose, anchorRef]);
+    }, [onClose, anchorElement]);
 
     return createPortal(
         <div
@@ -303,13 +303,6 @@ export function InterviewsTableView({
     statusUpdatingId,
 }: InterviewsTableViewProps) {
     const [openStatus, setOpenStatus] = useState<{ id: string; anchor: HTMLElement; item: InterviewSummary } | null>(null);
-    const anchorRef = useRef<HTMLElement | null>(null);
-
-    useEffect(() => {
-        if (openStatus) {
-            anchorRef.current = openStatus.anchor;
-        }
-    }, [openStatus]);
 
     const columns: TableColumn<InterviewSummary>[] = [
         {
@@ -484,7 +477,7 @@ export function InterviewsTableView({
                         setOpenStatus(null);
                     }}
                     onClose={() => setOpenStatus(null)}
-                    anchorRef={anchorRef}
+                    anchorElement={openStatus.anchor}
                     renderItem={(status, isCurrent) => {
                         const cfg = statusConfig[status];
                         return (

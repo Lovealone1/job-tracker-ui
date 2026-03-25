@@ -5,6 +5,7 @@ import { X } from 'lucide-react';
 import { InterviewType, CreateInterviewDto, UpdateInterviewDto } from '@/types/interview';
 import { JobApplication } from '@/types/job-application';
 import { cn } from '@/lib/utils';
+import { format as formatDate } from 'date-fns';
 
 interface CreateInterviewModalProps {
     isOpen: boolean;
@@ -124,8 +125,11 @@ export function CreateInterviewModal({ isOpen, onClose, onSubmit, isLoading, job
                             <label className="text-sm font-medium text-zinc-700 dark:text-zinc-300">Scheduled Date & Time *</label>
                             <input
                                 type="datetime-local"
-                                value={form.scheduledAt ? new Date(form.scheduledAt).toISOString().slice(0, 16) : ''}
-                                onChange={(e) => handleChange('scheduledAt', e.target.value ? new Date(e.target.value).toISOString() : '')}
+                                value={form.scheduledAt ? formatDate(new Date(form.scheduledAt), "yyyy-MM-dd'T'HH:mm") : ''}
+                                onChange={(e) => {
+                                    const val = e.target.value;
+                                    handleChange('scheduledAt', val ? new Date(val).toISOString() : '');
+                                }}
                                 className={inputClass('scheduledAt')}
                                 disabled={isLoading}
                             />
