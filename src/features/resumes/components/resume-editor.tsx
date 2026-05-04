@@ -569,7 +569,7 @@ export function ResumeEditor({ initialData, onSave }: ResumeEditorProps) {
                                                     <div className="flex gap-2">
                                                         <input 
                                                             className="w-full bg-white dark:bg-zinc-950 border border-transparent focus:border-[#A600FF] p-3 rounded-xl outline-none text-sm transition-all text-center"
-                                                            placeholder="Year Start"
+                                                            placeholder="YYYY-MM"
                                                             value={edu.startDate}
                                                             onChange={(e) => {
                                                                 const newEdu = [...resumeData.education];
@@ -579,7 +579,7 @@ export function ResumeEditor({ initialData, onSave }: ResumeEditorProps) {
                                                         />
                                                         <input 
                                                             className="w-full bg-white dark:bg-zinc-950 border border-transparent focus:border-[#A600FF] p-3 rounded-xl outline-none text-sm transition-all text-center"
-                                                            placeholder="Year End"
+                                                            placeholder="YYYY-MM or Present"
                                                             value={edu.endDate}
                                                             onChange={(e) => {
                                                                 const newEdu = [...resumeData.education];
@@ -648,6 +648,7 @@ export function ResumeEditor({ initialData, onSave }: ResumeEditorProps) {
                                                     <label className="text-[10px] font-black uppercase tracking-widest text-zinc-400">Start Date</label>
                                                     <input 
                                                         className="w-full bg-white dark:bg-zinc-950 border border-transparent focus:border-[#A600FF] p-3 rounded-xl outline-none text-sm transition-all"
+                                                        placeholder="YYYY-MM"
                                                         value={exp.startDate}
                                                         onChange={(e) => {
                                                             const newExp = [...resumeData.experience];
@@ -661,7 +662,7 @@ export function ResumeEditor({ initialData, onSave }: ResumeEditorProps) {
                                                     <input 
                                                         className="w-full bg-white dark:bg-zinc-950 border border-transparent focus:border-[#A600FF] p-3 rounded-xl outline-none text-sm transition-all"
                                                         value={exp.endDate}
-                                                        placeholder="Present"
+                                                        placeholder="YYYY-MM or Present"
                                                         onChange={(e) => {
                                                             const newExp = [...resumeData.experience];
                                                             newExp[index] = { ...newExp[index], endDate: e.target.value };
