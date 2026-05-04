@@ -14,7 +14,7 @@ export function resumeToRenderCVYaml(resume: any): string {
 
     const data = {
         cv: {
-            name: resume.resumeName || 'Your Name',
+            name: resume.resumeName?.replace(/\n/g, ' \\\\ ') || 'Your Name',
             location: personal.location || undefined,
             email: personal.email || undefined,
             phone: personal.phone || undefined,
