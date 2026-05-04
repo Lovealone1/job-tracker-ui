@@ -434,8 +434,9 @@ export function ResumeEditor({ initialData, onSave }: ResumeEditorProps) {
                                 <div className="grid grid-cols-2 gap-6">
                                     <div className="space-y-2 col-span-2">
                                         <label className="text-[10px] font-black uppercase tracking-widest text-zinc-400">Full Name</label>
-                                        <input 
-                                            className="w-full bg-zinc-100/50 dark:bg-zinc-900/50 border border-transparent focus:border-[#A600FF] p-4 rounded-2xl outline-none transition-all disabled:opacity-50"
+                                        <textarea 
+                                            rows={2}
+                                            className="w-full bg-zinc-100/50 dark:bg-zinc-900/50 border border-transparent focus:border-[#A600FF] p-4 rounded-2xl outline-none transition-all disabled:opacity-50 resize-none"
                                             value={resumeData.resumeName}
                                             onChange={(e) => setResumeData({...resumeData, resumeName: e.target.value})}
                                             disabled={isVariant}
