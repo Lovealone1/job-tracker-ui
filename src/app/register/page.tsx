@@ -1,93 +1,11 @@
 'use client';
 
-import React, { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { Briefcase, Mail, Lock, ArrowRight, User, CheckCircle2 } from 'lucide-react';
-import { useRegister } from '@/hooks/use-register';
+import React from 'react';
+import { Briefcase } from 'lucide-react';
 import Link from 'next/link';
+import { OAuthButtons } from '@/components/auth/oauth-buttons';
 
 export default function RegisterPage() {
-    const router = useRouter();
-    const registerMutation = useRegister();
-    
-    // Form state
-    const [email, setEmail] = useState('');
-    const [fullName, setFullName] = useState('');
-    const [password, setPassword] = useState('');
-    const [confirmPassword, setConfirmPassword] = useState('');
-    
-    // UI state
-    const [error, setError] = useState('');
-    const [isRegistered, setIsRegistered] = useState(false);
-
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-        setError('');
-
-        if (password !== confirmPassword) {
-            setError('Passwords do not match.');
-            return;
-        }
-
-        // Simple name splitting logic
-        const nameParts = fullName.trim().split(' ');
-        const firstName = nameParts[0] || '';
-        const lastName = nameParts.length > 1 ? nameParts.slice(1).join(' ') : '';
-
-        try {
-            await registerMutation.mutateAsync({ 
-                email, 
-                password, 
-                firstName, 
-                lastName 
-            });
-            setIsRegistered(true);
-        } catch (err: any) {
-            let message = 'An unexpected error occurred. Please try again.';
-            
-            if (err.response?.status === 429) {
-                message = 'Too many attempts. Please wait a few minutes before trying to register again.';
-            } else if (err.response?.data?.message) {
-                message = err.response.data.message;
-            }
-            
-            setError(message);
-        }
-    };
-
-    if (isRegistered) {
-        return (
-            <div className="relative flex min-h-screen items-center justify-center bg-[oklch(0.145_0_0)] overflow-hidden">
-                {/* ═══════ FUTURISTIC GLOW EFFECTS ═══════ */}
-                <div className="pointer-events-none absolute inset-0 overflow-hidden">
-                    <div className="absolute -top-32 -right-32 h-[500px] w-[500px] rounded-full bg-[#A600FF]/20 blur-[120px] animate-pulse" />
-                    <div className="absolute -bottom-40 -left-40 h-[600px] w-[600px] rounded-full bg-[#A600FF]/15 blur-[150px] animate-pulse [animation-delay:1s]" />
-                </div>
-
-                <div className="relative z-10 w-full max-w-md mx-auto px-6">
-                    <div className="rounded-2xl border border-white/[0.08] bg-white/[0.03] backdrop-blur-xl p-8 shadow-2xl text-center">
-                        <div className="mb-6 flex justify-center">
-                            <div className="flex h-16 w-16 items-center justify-center rounded-full bg-green-500/10 text-green-500 border border-green-500/20">
-                                <CheckCircle2 size={32} />
-                            </div>
-                        </div>
-                        <h3 className="text-2xl font-bold text-white mb-2">Check your email</h3>
-                        <p className="text-zinc-400 mb-8">
-                            We've sent a verification link to <span className="text-white font-medium">{email}</span>. 
-                            Please confirm your account to start using Job Tracker.
-                        </p>
-                        <Link 
-                            href="/login"
-                            className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#A600FF] px-6 py-3 text-sm font-bold text-white shadow-lg shadow-[#A600FF]/25 transition-all hover:bg-[#8B00D6]"
-                        >
-                            Return to Login
-                        </Link>
-                    </div>
-                </div>
-            </div>
-        );
-    }
-
     return (
         <div className="relative flex min-h-screen items-center justify-center bg-[oklch(0.145_0_0)] overflow-hidden">
             {/* ═══════ FUTURISTIC GLOW EFFECTS ═══════ */}
@@ -122,102 +40,25 @@ export default function RegisterPage() {
                     </div>
                 </div>
 
-                {/* FORM SIDE */}
+                {/* OAUTH SIDE — registration is exclusively via Google / GitHub */}
                 <div className="w-full max-w-md mx-auto lg:mx-0">
                     <div className="rounded-2xl border border-white/[0.08] bg-white/[0.03] backdrop-blur-xl p-8 shadow-2xl">
-                        <div className="mb-8">
-                            <h3 className="text-2xl font-bold text-white">Create account</h3>
-                            <p className="text-zinc-400 mt-1">Get started with your free account</p>
+                        {/* Mobile logo */}
+                        <div className="flex lg:hidden items-center gap-3 mb-8 justify-center">
+                            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#A600FF] text-white shadow-lg shadow-[#A600FF]/30">
+                                <Briefcase size={20} />
+                            </div>
+                            <span className="text-xl font-black tracking-tight text-white">Job Tracker</span>
                         </div>
 
-                        <form onSubmit={handleSubmit} className="space-y-4">
-                            {error && (
-                                <div className="rounded-xl bg-red-500/10 border border-red-500/20 px-4 py-3 text-sm text-red-400">
-                                    {error}
-                                </div>
-                            )}
+                        <div className="mb-8">
+                            <h3 className="text-2xl font-bold text-white">Create account</h3>
+                            <p className="text-zinc-400 mt-1">
+                                Sign up with your identity provider — no passwords, no email verification.
+                            </p>
+                        </div>
 
-                            {/* Full Name */}
-                            <div className="space-y-1.5">
-                                <label className="text-xs font-semibold text-zinc-400 uppercase tracking-wider ml-1">
-                                    Full Name
-                                </label>
-                                <div className="relative">
-                                    <User className="absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-500" size={16} />
-                                    <input
-                                        type="text"
-                                        required
-                                        value={fullName}
-                                        onChange={(e) => setFullName(e.target.value)}
-                                        placeholder="John Doe"
-                                        className="w-full rounded-xl border border-white/[0.08] bg-white/[0.04] py-3 pl-10 pr-4 text-sm text-white placeholder:text-zinc-600 focus:outline-none focus:ring-2 focus:ring-[#A600FF]/50 transition-all"
-                                    />
-                                </div>
-                            </div>
-
-                            {/* Email */}
-                            <div className="space-y-1.5">
-                                <label className="text-xs font-semibold text-zinc-400 uppercase tracking-wider ml-1">
-                                    Email
-                                </label>
-                                <div className="relative">
-                                    <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-500" size={16} />
-                                    <input
-                                        type="email"
-                                        required
-                                        value={email}
-                                        onChange={(e) => setEmail(e.target.value)}
-                                        placeholder="you@example.com"
-                                        className="w-full rounded-xl border border-white/[0.08] bg-white/[0.04] py-3 pl-10 pr-4 text-sm text-white placeholder:text-zinc-600 focus:outline-none focus:ring-2 focus:ring-[#A600FF]/50 transition-all"
-                                    />
-                                </div>
-                            </div>
-
-                            {/* Password */}
-                            <div className="space-y-1.5">
-                                <label className="text-xs font-semibold text-zinc-400 uppercase tracking-wider ml-1">
-                                    Password
-                                </label>
-                                <div className="relative">
-                                    <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-500" size={16} />
-                                    <input
-                                        type="password"
-                                        required
-                                        value={password}
-                                        onChange={(e) => setPassword(e.target.value)}
-                                        placeholder="••••••••"
-                                        className="w-full rounded-xl border border-white/[0.08] bg-white/[0.04] py-3 pl-10 pr-4 text-sm text-white placeholder:text-zinc-600 focus:outline-none focus:ring-2 focus:ring-[#A600FF]/50 transition-all"
-                                    />
-                                </div>
-                            </div>
-
-                            {/* Confirm Password */}
-                            <div className="space-y-1.5">
-                                <label className="text-xs font-semibold text-zinc-400 uppercase tracking-wider ml-1">
-                                    Confirm Password
-                                </label>
-                                <div className="relative">
-                                    <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-500" size={16} />
-                                    <input
-                                        type="password"
-                                        required
-                                        value={confirmPassword}
-                                        onChange={(e) => setConfirmPassword(e.target.value)}
-                                        placeholder="••••••••"
-                                        className="w-full rounded-xl border border-white/[0.08] bg-white/[0.04] py-3 pl-10 pr-4 text-sm text-white placeholder:text-zinc-600 focus:outline-none focus:ring-2 focus:ring-[#A600FF]/50 transition-all"
-                                    />
-                                </div>
-                            </div>
-
-                            <button
-                                type="submit"
-                                disabled={registerMutation.isPending}
-                                className="group relative flex w-full items-center justify-center gap-2 rounded-xl bg-[#A600FF] px-6 py-3 text-sm font-bold text-white shadow-lg shadow-[#A600FF]/25 transition-all hover:bg-[#8B00D6] disabled:opacity-60"
-                            >
-                                {registerMutation.isPending ? 'Creating account...' : 'Create account'}
-                                {!registerMutation.isPending && <ArrowRight size={16} className="transition-transform group-hover:translate-x-0.5" />}
-                            </button>
-                        </form>
+                        <OAuthButtons actionLabel="Sign up" />
 
                         <p className="mt-6 text-center text-xs text-zinc-600">
                             Already have an account?{' '}

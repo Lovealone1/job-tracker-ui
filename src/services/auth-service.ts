@@ -1,25 +1,34 @@
 import axios from 'axios';
-import { AuthResponse, LoginCredentials, User, RegisterCredentials } from '@/types/auth';
-import { queryClient, clearAllCaches } from '@/core/query-client';
+import { AuthResponse, LoginCredentials, User } from '@/types/auth';
+import { clearAllCaches } from '@/core/query-client';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
 
+/**
+ * Non-sensitive UI hint — NOT a token.
+ * The real session lives in httpOnly cookies set by the backend and is never
+ * readable from JS. This flag only lets the UI decide synchronously
+ * (react-query `enabled` flags, guards) whether it is worth trying requests.
+ */
+const SESSION_FLAG_KEY = 'jt_session_active';
+
+export type OAuthProvider = 'google' | 'github';
 
 class AuthService {
-    private readonly STORAGE_KEY = 'job_tracker_auth';
-
     async login(credentials: LoginCredentials): Promise<AuthResponse> {
         try {
-            // We use a direct axios call here to avoid circular dependency with apiClient
-            // and because login is a special case that doesn't need the bearer token yet.
-            const response = await axios.post<AuthResponse>(`${API_URL}/api/v1/auth/token`, credentials);
-            
+            // Direct axios call (login is a special case, no cookies yet).
+            // withCredentials => the backend Set-Cookie headers are honored.
+            const response = await axios.post<AuthResponse>(`${API_URL}/api/v1/auth/token`, credentials, {
+                withCredentials: true,
+            });
+
             if (response.data.access_token) {
                 // Clear any leftover cache from previous sessions before starting new one
                 await clearAllCaches();
-                this.setSession(response.data);
+                this.markSessionActive();
             }
-            
+
             return response.data;
         } catch (error) {
             console.error('Login error:', error);
@@ -27,74 +36,82 @@ class AuthService {
         }
     }
 
-    async register(credentials: RegisterCredentials): Promise<void> {
-        try {
-            await axios.post(`${API_URL}/api/v1/auth/register`, credentials);
-        } catch (error) {
-            console.error('Registration error:', error);
-            throw error;
-        }
+    /**
+     * OAuth sign-in / sign-up (Google & GitHub are the ONLY registration path).
+     * Redirects the browser to the backend, which starts the Supabase OAuth
+     * flow and lands back on the app with httpOnly session cookies set.
+     */
+    startOAuth(provider: OAuthProvider): void {
+        window.location.href = `${API_URL}/api/v1/auth/oauth/${provider}`;
     }
 
-    logout(): void {
-        if (typeof window !== 'undefined') {
-            localStorage.removeItem(this.STORAGE_KEY);
-            // Clear all caches (in-memory and persisted)
+    async logout(): Promise<void> {
+        try {
+            await axios.post(`${API_URL}/api/v1/auth/logout`, {}, { withCredentials: true });
+        } catch {
+            // best-effort: local state is cleared regardless
+        } finally {
+            this.markSessionInactive();
             clearAllCaches().catch(console.error);
         }
     }
 
     async refresh(): Promise<AuthResponse | null> {
-        const session = this.getSession();
-        if (!session || !session.refresh_token) {
-            this.logout();
-            return null;
-        }
-
         try {
-            const response = await axios.post<AuthResponse>(`${API_URL}/api/v1/auth/refresh`, {
-                refreshToken: session.refresh_token,
-            });
+            const response = await axios.post<AuthResponse>(
+                `${API_URL}/api/v1/auth/refresh`,
+                {},
+                { withCredentials: true },
+            );
 
             if (response.data.access_token) {
-                this.setSession(response.data);
+                this.markSessionActive();
                 return response.data;
             }
 
-            this.logout();
             return null;
         } catch (error) {
             console.error('Refresh token error:', error);
-            this.logout();
+            this.markSessionInactive();
+            clearAllCaches().catch(console.error);
             return null;
         }
     }
 
-    private setSession(authData: AuthResponse): void {
-        if (typeof window !== 'undefined') {
-            localStorage.setItem(this.STORAGE_KEY, JSON.stringify(authData));
+    /** Server-side session check — the httpOnly cookie is not readable from JS. */
+    async me(): Promise<User | null> {
+        try {
+            const response = await axios.get<User>(`${API_URL}/api/v1/auth/me`, {
+                withCredentials: true,
+            });
+            this.markSessionActive();
+            return response.data;
+        } catch {
+            this.markSessionInactive();
+            return null;
         }
     }
 
-    getSession(): AuthResponse | null {
-        if (typeof window === 'undefined') return null;
-        
-        const session = localStorage.getItem(this.STORAGE_KEY);
-        return session ? JSON.parse(session) : null;
-    }
-
-    async getToken(): Promise<string | null> {
-        const session = this.getSession();
-        return session ? session.access_token : null;
-    }
-
-    getUser(): User | null {
-        const session = this.getSession();
-        return session ? session.user : null;
-    }
-
+    /**
+     * Synchronous auth hint for react-query `enabled` flags and guards.
+     * It is only a UI hint: every request is still validated by the backend
+     * through the httpOnly cookie.
+     */
     isAuthenticated(): boolean {
-        return !!this.getSession();
+        if (typeof window === 'undefined') return false;
+        return localStorage.getItem(SESSION_FLAG_KEY) === '1';
+    }
+
+    private markSessionActive(): void {
+        if (typeof window !== 'undefined') {
+            localStorage.setItem(SESSION_FLAG_KEY, '1');
+        }
+    }
+
+    private markSessionInactive(): void {
+        if (typeof window !== 'undefined') {
+            localStorage.removeItem(SESSION_FLAG_KEY);
+        }
     }
 }
 

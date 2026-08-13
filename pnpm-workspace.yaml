@@ -1,3 +1,6 @@
-ignoredBuiltDependencies:
-  - sharp
-  - unrs-resolver
+# pnpm 11: onlyBuiltDependencies/ignoredBuiltDependencies fueron eliminados
+# y fusionados en allowBuilds ({ nombre: true | false }).
+allowBuilds:
+  msw: true
+  sharp: true
+  unrs-resolver: true
