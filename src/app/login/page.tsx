@@ -1,9 +1,10 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Briefcase, Mail, Lock, ArrowRight, Eye, EyeOff } from 'lucide-react';
 import { useLogin } from '@/hooks/use-login';
+import { OAuthButtons } from '@/components/auth/oauth-buttons';
 import Link from 'next/link';
 
 export default function LoginPage() {
@@ -13,6 +14,14 @@ export default function LoginPage() {
     const [password, setPassword] = useState('');
     const [showPassword, setShowPassword] = useState(false);
     const [error, setError] = useState('');
+
+    // Surface OAuth errors coming back from the backend callback redirect
+    useEffect(() => {
+        const params = new URLSearchParams(window.location.search);
+        if (params.get('error') === 'oauth') {
+            setError('Google/GitHub sign-in failed or was cancelled. Please try again.');
+        }
+    }, []);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -174,10 +183,19 @@ export default function LoginPage() {
                             </button>
                         </form>
 
+                        {/* Divider */}
+                        <div className="my-6 flex items-center gap-4">
+                            <div className="h-px flex-1 bg-white/[0.08]" />
+                            <span className="text-xs font-medium uppercase tracking-wider text-zinc-500">or</span>
+                            <div className="h-px flex-1 bg-white/[0.08]" />
+                        </div>
+
+                        <OAuthButtons actionLabel="Continue" />
+
                         <p className="mt-6 text-center text-xs text-zinc-600">
                             Don&apos;t have an account?{' '}
                             <Link href="/register" className="text-[#A600FF] font-medium hover:underline">
-                                Register now
+                                Sign up with Google or GitHub
                             </Link>
                         </p>
                     </div>

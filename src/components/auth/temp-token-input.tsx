@@ -2,27 +2,19 @@
 
 import React, { useState } from 'react';
 import { Key } from 'lucide-react';
-import { authService } from '@/services/auth-service';
 
 export function TempTokenInput() {
     const [token, setToken] = useState('');
 
     const handleSave = () => {
         if (!token) return;
-        
-        // Manual session creation for testing
-        const dummySession = {
-            access_token: token,
-            refresh_token: '',
-            user: {
-                id: 'temp-user',
-                email: 'test@example.com',
-                role: 'USER'
-            }
-        };
-        
+
+        // Dev-only shortcut: seeds the access-token cookie by hand.
+        // (Cookies set from JS cannot be httpOnly — this is just a testing
+        // helper; real sessions always come from backend httpOnly Set-Cookie.)
         if (typeof window !== 'undefined') {
-            localStorage.setItem('job_tracker_auth', JSON.stringify(dummySession));
+            document.cookie = `jt_access_token=${encodeURIComponent(token)}; path=/; SameSite=Lax`;
+            localStorage.setItem('jt_session_active', '1'); // UI hint only, not a token
             window.location.reload(); // Reload to apply token
         }
     };

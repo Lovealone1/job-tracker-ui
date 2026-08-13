@@ -4,8 +4,10 @@ import { authService } from './auth-service';
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
 
 /**
- * Custom Axios instance for the Lunch App.
- * Includes automatic JWT injection and response interceptors.
+ * Custom Axios instance for the Job Tracker App.
+ * Authentication travels in httpOnly cookies (withCredentials), so no
+ * Bearer token is ever handled by JS. Expired sessions are transparently
+ * refreshed once and retried.
  */
 export const apiClient: AxiosInstance = axios.create({
     baseURL: `${API_URL}/api/v1`,
@@ -13,21 +15,15 @@ export const apiClient: AxiosInstance = axios.create({
         'Content-Type': 'application/json',
     },
     timeout: 10000,
+    withCredentials: true,
 });
 
-// Request interceptor: Inject Bearer Token
+// Request interceptor: let the browser set the multipart boundary for FormData
 apiClient.interceptors.request.use(
-    async (config: InternalAxiosRequestConfig) => {
-        const token = await authService.getToken();
-        if (token && config.headers) {
-            config.headers.Authorization = `Bearer ${token}`;
-        }
-
-        // Allow browser to automatically set boundary for FormData
+    (config: InternalAxiosRequestConfig) => {
         if (config.data instanceof FormData && config.headers) {
             delete config.headers['Content-Type'];
         }
-
         return config;
     },
     (error) => {
@@ -35,13 +31,12 @@ apiClient.interceptors.request.use(
     }
 );
 
-// Response interceptor: Handle global errors (like 401)
+// Response interceptor: refresh the session once on 401, then retry
 apiClient.interceptors.response.use(
     (response) => response,
     async (error) => {
         const originalRequest = error.config;
 
-        // Handle 401 Unauthorized (Expired Tokens)
         if (error.response?.status === 401 && !originalRequest._retry) {
             originalRequest._retry = true;
 
@@ -50,17 +45,10 @@ apiClient.interceptors.response.use(
                 return Promise.reject(error);
             }
 
-            try {
-                const session = await authService.refresh();
-                if (session && session.access_token) {
-                    // Update the header and retry the request
-                    originalRequest.headers.Authorization = `Bearer ${session.access_token}`;
-                    return apiClient(originalRequest);
-                }
-            } catch (refreshError) {
-                // If refresh fails, clear session and let the app handle the redirect to login
-                authService.logout();
-                return Promise.reject(refreshError);
+            const session = await authService.refresh();
+            if (session?.access_token) {
+                // Cookies were rotated by the backend — just retry the request.
+                return apiClient(originalRequest);
             }
         }
 

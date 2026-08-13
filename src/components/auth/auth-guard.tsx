@@ -1,12 +1,14 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { authService } from '@/services/auth-service';
 
 /**
  * Auth guard component — redirects to /login if not authenticated.
- * Wraps children and only renders them once auth is confirmed.
+ * The session lives in an httpOnly cookie (not readable from JS), so the
+ * check is done server-side via /auth/me. Children only render once auth
+ * is confirmed.
  */
 export function AuthGuard({ children }: { children: React.ReactNode }) {
     const router = useRouter();
@@ -14,13 +16,21 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
     const [isAuthed, setIsAuthed] = useState(false);
 
     useEffect(() => {
-        const session = authService.getSession();
-        if (!session) {
-            router.replace('/login');
-        } else {
-            setIsAuthed(true);
-        }
-        setIsChecking(false);
+        let mounted = true;
+
+        authService.me().then((user) => {
+            if (!mounted) return;
+            if (!user) {
+                router.replace('/login');
+            } else {
+                setIsAuthed(true);
+            }
+            setIsChecking(false);
+        });
+
+        return () => {
+            mounted = false;
+        };
     }, [router]);
 
     if (isChecking) {
