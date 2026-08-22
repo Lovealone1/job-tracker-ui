@@ -19,6 +19,9 @@ export default function LoginPage() {
     useEffect(() => {
         const params = new URLSearchParams(window.location.search);
         if (params.get('error') === 'oauth') {
+            // One-shot mount effect reading a callback query param; there is
+            // no event handler to move this into.
+            // eslint-disable-next-line react-hooks/set-state-in-effect
             setError('Google/GitHub sign-in failed or was cancelled. Please try again.');
         }
     }, []);
@@ -31,9 +34,19 @@ export default function LoginPage() {
             await loginMutation.mutateAsync({ email, password });
             router.push('/dashboard');
         } catch (err: unknown) {
-            const axiosErr = err as { response?: { status?: number } };
-            if (axiosErr.response?.status === 401) {
+            const axiosErr = err as {
+                response?: { status?: number; data?: { message?: string | string[] } };
+            };
+            const status = axiosErr.response?.status;
+            const serverMessage = axiosErr.response?.data?.message;
+
+            if (status === 401) {
                 setError('Invalid email or password.');
+            } else if (status === 429) {
+                setError('Too many login attempts. Please wait a few minutes and try again.');
+            } else if (typeof serverMessage === 'string') {
+                // Surface backend messages (e.g. unconfirmed email, disabled account)
+                setError(serverMessage);
             } else {
                 setError('An unexpected error occurred. Please try again.');
             }
