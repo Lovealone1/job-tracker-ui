@@ -26,6 +26,8 @@ import {
     Lightbulb,
     Mic2,
     Star,
+    GripVertical,
+    ArrowDownUp,
     X as CloseIcon
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -52,6 +54,7 @@ export function ResumeEditor({ initialData, onSave }: ResumeEditorProps) {
     const [pageCount, setPageCount] = useState(1);
     const [previewUrl, setPreviewUrl] = useState<string | null>(null);
     const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
+    const [dragIndex, setDragIndex] = useState<number | null>(null);
     const [resumeData, setResumeData] = useState<any>(() => {
         const defaults = {
             title: 'My Resume',
@@ -121,6 +124,33 @@ export function ResumeEditor({ initialData, onSave }: ResumeEditorProps) {
         { id: 'patents', label: 'Patents', icon: Lightbulb },
         { id: 'talks', label: 'Talks', icon: Mic2 },
     ];
+
+    /** Moves an experience entry from one index to another. */
+    const moveExperience = (from: number, to: number) => {
+        const list = resumeData.experience || [];
+        if (from < 0 || to < 0 || from >= list.length || to >= list.length || from === to) return;
+        const reordered = [...list];
+        const [moved] = reordered.splice(from, 1);
+        reordered.splice(to, 0, moved);
+        setResumeData({ ...resumeData, experience: reordered });
+    };
+
+    /**
+     * Sorts experiences by start date, most recent first (YYYY-MM strings
+     * compare correctly as text). Entries without a start date go last.
+     */
+    const sortExperienceByRecent = () => {
+        const list = resumeData.experience || [];
+        const sorted = [...list].sort((a, b) => {
+            const dateA = (a?.startDate || '').trim();
+            const dateB = (b?.startDate || '').trim();
+            if (!dateA && !dateB) return 0;
+            if (!dateA) return 1;
+            if (!dateB) return -1;
+            return dateB.localeCompare(dateA);
+        });
+        setResumeData({ ...resumeData, experience: sorted });
+    };
 
     return (
         <div className="flex flex-col h-full md:h-[calc(100vh-72px)] overflow-hidden bg-background">
@@ -606,8 +636,77 @@ export function ResumeEditor({ initialData, onSave }: ResumeEditorProps) {
 
                             {activeSection === 'experience' && (
                                 <div className="space-y-6">
+                                    {/* Experience header: count + reorder helper */}
+                                    <div className="flex items-center justify-between">
+                                        <span className="text-[10px] font-black uppercase tracking-widest text-zinc-400">
+                                            {resumeData.experience.length} {resumeData.experience.length === 1 ? 'entry' : 'entries'} · drag or use arrows to reorder
+                                        </span>
+                                        <button
+                                            type="button"
+                                            onClick={sortExperienceByRecent}
+                                            disabled={resumeData.experience.length < 2}
+                                            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-zinc-100 dark:bg-zinc-900 text-[9px] font-black uppercase tracking-widest text-zinc-500 hover:text-[#A600FF] disabled:opacity-40 disabled:cursor-not-allowed transition-all"
+                                            title="Sort by start date, most recent first"
+                                        >
+                                            <ArrowDownUp className="w-3 h-3" />
+                                            Sort: Most Recent First
+                                        </button>
+                                    </div>
                                     {resumeData.experience.map((exp: any, index: number) => (
-                                        <div key={index} className="p-6 bg-zinc-50 dark:bg-zinc-900/50 rounded-3xl border border-zinc-200 dark:border-zinc-800 space-y-4 relative">
+                                        <div
+                                            key={index}
+                                            onDragOver={(e) => e.preventDefault()}
+                                            onDrop={() => {
+                                                if (dragIndex !== null && dragIndex !== index) {
+                                                    moveExperience(dragIndex, index);
+                                                }
+                                                setDragIndex(null);
+                                            }}
+                                            onDragEnd={() => setDragIndex(null)}
+                                            className={cn(
+                                                "p-6 bg-zinc-50 dark:bg-zinc-900/50 rounded-3xl border space-y-4 relative transition-all",
+                                                dragIndex === index
+                                                    ? "border-[#A600FF]/50 opacity-60"
+                                                    : "border-zinc-200 dark:border-zinc-800"
+                                            )}
+                                        >
+                                            {/* Reorder controls: drag handle + move up/down */}
+                                            <div className="absolute top-4 left-4 flex items-center gap-0.5">
+                                                <button
+                                                    type="button"
+                                                    draggable
+                                                    onDragStart={(e) => {
+                                                        setDragIndex(index);
+                                                        e.dataTransfer.effectAllowed = 'move';
+                                                        e.dataTransfer.setData('text/plain', String(index));
+                                                    }}
+                                                    title="Drag to reorder"
+                                                    className="p-1.5 text-zinc-400 hover:text-[#A600FF] cursor-grab active:cursor-grabbing transition-colors"
+                                                >
+                                                    <GripVertical className="w-4 h-4" />
+                                                </button>
+                                                <button
+                                                    type="button"
+                                                    onClick={() => moveExperience(index, index - 1)}
+                                                    disabled={index === 0}
+                                                    title="Move up"
+                                                    className="p-1.5 text-zinc-400 hover:text-[#A600FF] disabled:opacity-25 disabled:cursor-not-allowed transition-colors"
+                                                >
+                                                    <ChevronUp className="w-4 h-4" />
+                                                </button>
+                                                <button
+                                                    type="button"
+                                                    onClick={() => moveExperience(index, index + 1)}
+                                                    disabled={index === resumeData.experience.length - 1}
+                                                    title="Move down"
+                                                    className="p-1.5 text-zinc-400 hover:text-[#A600FF] disabled:opacity-25 disabled:cursor-not-allowed transition-colors"
+                                                >
+                                                    <ChevronDown className="w-4 h-4" />
+                                                </button>
+                                                <span className="ml-1 text-[8px] font-black uppercase tracking-widest text-zinc-400">
+                                                    #{index + 1}
+                                                </span>
+                                            </div>
                                             <button 
                                                 onClick={() => {
                                                     const newExp = [...resumeData.experience];
