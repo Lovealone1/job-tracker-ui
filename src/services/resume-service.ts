@@ -44,10 +44,9 @@ class ResumeService {
 
     // --- Rendering ---
     getRenderUrls(id: string) {
-        const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api/v1';
         return {
-            pdf: `${baseUrl}${this.resumesResource}/${id}/pdf`,
-            preview: `${baseUrl}${this.resumesResource}/${id}/preview`,
+            pdf: `/api/v1${this.resumesResource}/${id}/pdf`,
+            preview: `/api/v1${this.resumesResource}/${id}/preview`,
         };
     }
 
@@ -105,10 +104,9 @@ class ResumeService {
 
     // --- Variant Rendering ---
     getVariantRenderUrls(id: string) {
-        const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api/v1';
         return {
-            pdf: `${baseUrl}${this.variantsResource}/${id}/pdf`,
-            preview: `${baseUrl}${this.variantsResource}/${id}/preview`,
+            pdf: `/api/v1${this.variantsResource}/${id}/pdf`,
+            preview: `/api/v1${this.variantsResource}/${id}/preview`,
         };
     }
 
