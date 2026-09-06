@@ -1,16 +1,19 @@
 import axios, { AxiosInstance, InternalAxiosRequestConfig } from 'axios';
 import { authService } from './auth-service';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
-
 /**
  * Custom Axios instance for the Job Tracker App.
  * Authentication travels in httpOnly cookies (withCredentials), so no
  * Bearer token is ever handled by JS. Expired sessions are transparently
  * refreshed once and retried.
+ *
+ * The baseURL is relative on purpose: requests hit the frontend origin and
+ * the Next rewrite proxies them to the API, which keeps the session cookie
+ * first-party. Never hardcode the API origin here or the cookie becomes
+ * third-party again and browsers drop it.
  */
 export const apiClient: AxiosInstance = axios.create({
-    baseURL: `${API_URL}/api/v1`,
+    baseURL: '/api/v1',
     headers: {
         'Content-Type': 'application/json',
     },

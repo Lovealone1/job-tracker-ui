@@ -1,8 +1,6 @@
 import axios from 'axios';
-import { AuthResponse, LoginCredentials, User } from '@/types/auth';
+import { AuthResponse, LoginCredentials } from '@/types/auth';
 import { clearAllCaches } from '@/core/query-client';
-
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
 
 /**
  * Non-sensitive UI hint — NOT a token.
@@ -18,8 +16,9 @@ class AuthService {
     async login(credentials: LoginCredentials): Promise<AuthResponse> {
         try {
             // Direct axios call (login is a special case, no cookies yet).
-            // withCredentials => the backend Set-Cookie headers are honored.
-            const response = await axios.post<AuthResponse>(`${API_URL}/api/v1/auth/token`, credentials, {
+            // Relative URL => same-origin through the Next rewrite, so the
+            // Set-Cookie lands on the frontend domain as a first-party cookie.
+            const response = await axios.post<AuthResponse>('/api/v1/auth/token', credentials, {
                 withCredentials: true,
             });
 
@@ -38,16 +37,19 @@ class AuthService {
 
     /**
      * OAuth sign-in / sign-up (Google & GitHub are the ONLY registration path).
-     * Redirects the browser to the backend, which starts the Supabase OAuth
-     * flow and lands back on the app with httpOnly session cookies set.
+     * Redirects the browser to the backend through the same-origin rewrite,
+     * which starts the Supabase OAuth flow and lands back on the app with
+     * httpOnly session cookies set. The backend's API_PUBLIC_URL must point at
+     * this frontend origin so the callback returns through the proxy too —
+     * otherwise the cookie is set on the API domain and never sent back.
      */
     startOAuth(provider: OAuthProvider): void {
-        window.location.href = `${API_URL}/api/v1/auth/oauth/${provider}`;
+        window.location.href = `/api/v1/auth/oauth/${provider}`;
     }
 
     async logout(): Promise<void> {
         try {
-            await axios.post(`${API_URL}/api/v1/auth/logout`, {}, { withCredentials: true });
+            await axios.post('/api/v1/auth/logout', {}, { withCredentials: true });
         } catch {
             // best-effort: local state is cleared regardless
         } finally {
@@ -59,7 +61,7 @@ class AuthService {
     async refresh(): Promise<AuthResponse | null> {
         try {
             const response = await axios.post<AuthResponse>(
-                `${API_URL}/api/v1/auth/refresh`,
+                '/api/v1/auth/refresh',
                 {},
                 { withCredentials: true },
             );
@@ -78,20 +80,6 @@ class AuthService {
         }
     }
 
-    /** Server-side session check — the httpOnly cookie is not readable from JS. */
-    async me(): Promise<User | null> {
-        try {
-            const response = await axios.get<User>(`${API_URL}/api/v1/auth/me`, {
-                withCredentials: true,
-            });
-            this.markSessionActive();
-            return response.data;
-        } catch {
-            this.markSessionInactive();
-            return null;
-        }
-    }
-
     /**
      * Synchronous auth hint for react-query `enabled` flags and guards.
      * It is only a UI hint: every request is still validated by the backend
@@ -102,13 +90,13 @@ class AuthService {
         return localStorage.getItem(SESSION_FLAG_KEY) === '1';
     }
 
-    private markSessionActive(): void {
+    markSessionActive(): void {
         if (typeof window !== 'undefined') {
             localStorage.setItem(SESSION_FLAG_KEY, '1');
         }
     }
 
-    private markSessionInactive(): void {
+    markSessionInactive(): void {
         if (typeof window !== 'undefined') {
             localStorage.removeItem(SESSION_FLAG_KEY);
         }

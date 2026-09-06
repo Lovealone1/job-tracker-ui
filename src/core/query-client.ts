@@ -1,6 +1,7 @@
 'use client';
 
 import { QueryClient } from '@tanstack/react-query';
+import type { AxiosError } from 'axios';
 import { persistQueryClient, type PersistedClient } from '@tanstack/react-query-persist-client';
 import { get, set, del } from 'idb-keyval';
 
@@ -37,7 +38,14 @@ export const queryClient = new QueryClient({
         queries: {
             staleTime: 1000 * 60 * 5, // 5 minutes
             gcTime: 1000 * 60 * 60 * 24, // 24 hours
-            retry: 3,
+            // Never retry 4xx: a 401/403/404 is a verdict, not a hiccup.
+            // Retrying them quadrupled the failures hitting the API and could
+            // trip its rate limiter. Transient errors still get 3 attempts.
+            retry: (failureCount, error) => {
+                const status = (error as AxiosError)?.response?.status;
+                if (status && status >= 400 && status < 500) return false;
+                return failureCount < 3;
+            },
             refetchOnWindowFocus: false, // Better for tablet apps
             refetchOnReconnect: 'always',
         },
